@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield } from 'lucide-react';
+import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield, CheckCircle2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { bounties, generateTerminalLines } from '@/data/mockData';
 import { Bounty, TerminalLine } from '@/types';
@@ -41,15 +41,25 @@ export default function ArenaView() {
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
   const [code, setCode] = useState('');
   const [pointsEarned, setPointsEarned] = useState(0);
+  const [viewMode, setViewMode] = useState<'solution' | 'original'>('solution');
 
   const startChallenge = useCallback((bounty: Bounty) => {
     setSelectedBounty(bounty);
     setTimeRemaining(bounty.timeLimit);
-    setTerminalLines(generateTerminalLines(bounty.techStack));
     setShowFailure(false);
     setShowSuccess(false);
-    setCode(getInitialCode(bounty.title));
-  }, []);
+
+    const savedSolution = user?.solutions?.[bounty.id];
+    if (savedSolution) {
+      setCode(savedSolution);
+      setViewMode('solution');
+      setTerminalLines([{ id: '1', type: 'info', message: 'Loaded previously successful fix.', timestamp: new Date().toISOString() }]);
+    } else {
+      setCode(getInitialCode(bounty.title));
+      setViewMode('original');
+      setTerminalLines(generateTerminalLines(bounty.techStack));
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!selectedBounty || timeRemaining <= 0) return;
@@ -133,8 +143,26 @@ export default function ArenaView() {
                   <p className="text-xs font-mono truncate" style={{ color: 'var(--text-3)' }}>{selectedBounty.repo}</p>
                 </div>
               </div>
+              
+              {user?.solutions?.[selectedBounty.id] && (
+                <div className="hidden sm:flex bg-black/20 p-0.5 rounded-md border mx-auto" style={{ borderColor: 'var(--border)' }}>
+                  <button
+                    onClick={() => { setViewMode('solution'); setCode(user.solutions![selectedBounty.id]) }}
+                    className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'solution' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+                  >
+                    Your Solution
+                  </button>
+                  <button
+                    onClick={() => { setViewMode('original'); setCode(getInitialCode(selectedBounty.title)) }}
+                    className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'original' ? 'bg-red-500/20 text-red-400 shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+                  >
+                    Original Buggy Code
+                  </button>
+                </div>
+              )}
+
               <div
-                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-2"
+                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-auto"
                 style={
                   isUrgent
                     ? { background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)' }
@@ -166,28 +194,30 @@ export default function ArenaView() {
                   <div className="px-2 py-1" style={{ color: 'var(--text-3)' }}>package.json</div>
                 </div>
               </div>
-
-                {/* Editor */}
-                <div className="flex-1 min-w-0 min-h-0" style={{ minHeight: '200px' }}>
-                  <MonacoEditor
-                    height="100%"
-                    language="typescript"
-                    theme={theme === 'dark' ? 'vs-dark' : 'vs'}
-                    value={code}
-                    onChange={(v) => setCode(v ?? '')}
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 13,
-                      lineNumbers: 'on',
-                      scrollBeyondLastLine: false,
-                      automaticLayout: true,
-                      padding: { top: 12 },
-                      fontFamily: "'JetBrains Mono', monospace",
-                      renderLineHighlight: 'none',
-                      occurrencesHighlight: 'off',
-                      selectionHighlight: false,
-                    }}
-                  />
+                {/* Editor Area */}
+                <div className="flex-1 flex flex-col min-w-0 min-h-0">
+                  {/* Editor */}
+                  <div className="flex-1 min-w-0 min-h-0">
+                    <MonacoEditor
+                      height="100%"
+                      language="typescript"
+                      theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+                      value={code}
+                      onChange={(v) => setCode(v ?? '')}
+                      options={{
+                        minimap: { enabled: false },
+                        fontSize: 13,
+                        lineNumbers: 'on',
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                        padding: { top: 12 },
+                        fontFamily: "'JetBrains Mono', monospace",
+                        renderLineHighlight: 'none',
+                        occurrencesHighlight: 'off',
+                        selectionHighlight: false,
+                      }}
+                    />
+                  </div>
                 </div>
             </div>
 
@@ -250,6 +280,9 @@ export default function ArenaView() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 sm:gap-3 mb-1.5">
                         <h3 className="font-semibold text-sm sm:text-base" style={{ color: 'var(--text)' }}>{bounty.title}</h3>
+                        {user?.badges?.includes(bounty.id) && (
+                          <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--green)' }} />
+                        )}
                         <span className="text-xs font-mono hidden sm:block" style={{ color: 'var(--text-3)' }}>{bounty.techStack}</span>
                       </div>
                       <div className="flex items-center gap-3 sm:gap-5 flex-wrap">

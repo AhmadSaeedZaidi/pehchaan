@@ -3,6 +3,7 @@ import {
   getUser,
   updateUserScore,
   addBadge,
+  saveSolution,
   updateUserStatus,
   ensureSchema,
 } from "@/lib/db";
@@ -126,10 +127,17 @@ Evaluate this submission immediately.
     let pointsAwarded = 0;
 
     if (grading.success) {
-      pointsAwarded = Math.round(bounty.reward * (grading.score / 100));
-      const afterScore = await updateUserScore(userId, pointsAwarded);
-      const afterBadge = await addBadge(userId, bountyId);
-      updatedUser = afterBadge ?? afterScore ?? user;
+      const alreadySolved = user.badges?.includes(bountyId);
+      
+      if (!alreadySolved) {
+        pointsAwarded = Math.round(bounty.reward * (grading.score / 100));
+        const afterScore = await updateUserScore(userId, pointsAwarded);
+        const afterBadge = await addBadge(userId, bountyId);
+        updatedUser = afterBadge ?? afterScore ?? user;
+      }
+      
+      const afterSolution = await saveSolution(userId, bountyId, submittedCode);
+      if (afterSolution) updatedUser = afterSolution;
     }
 
     return NextResponse.json({
