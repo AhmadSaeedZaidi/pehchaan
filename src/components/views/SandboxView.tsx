@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Play, Lightbulb, Trophy, Zap, ChevronDown, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Play, Trophy, Zap, ChevronDown, CheckCircle2, XCircle, Loader2, AlertCircle, Skull } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { trainingModules, brokenCodeSamples, hints } from '@/data/mockData';
+import { trainingModules, brokenCodeSamples } from '@/data/mockData';
 import { TrainingModule } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
@@ -18,9 +18,9 @@ interface DifficultyConfig {
 }
 
 const difficultyConfig: Record<TrainingModule['difficulty'], DifficultyConfig> = {
-  beginner:     { label: 'Easy',   color: '#16a34a', bg: 'rgba(22,163,74,0.1)', border: 'rgba(22,163,74,0.25)' },
-  intermediate: { label: 'Medium', color: '#d97706', bg: 'rgba(217,119,6,0.1)', border: 'rgba(217,119,6,0.25)' },
-  advanced:     { label: 'Hard',   color: '#dc2626', bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)' },
+  beginner:     { label: 'Medium',   color: '#16a34a', bg: 'rgba(22,163,74,0.1)', border: 'rgba(22,163,74,0.25)' },
+  intermediate: { label: 'Hard', color: '#d97706', bg: 'rgba(217,119,6,0.1)', border: 'rgba(217,119,6,0.25)' },
+  advanced:     { label: 'Brutal',   color: '#dc2626', bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)' },
 };
 
 interface GradingResult {
@@ -36,7 +36,6 @@ export default function SandboxView() {
   const { user, updateUser } = useUser();
   const [selectedModule, setSelectedModule] = useState<TrainingModule | null>(null);
   const [code, setCode] = useState('');
-  const [showHint, setShowHint] = useState(false);
   const [grading, setGrading] = useState<GradingResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -45,7 +44,6 @@ export default function SandboxView() {
   const handleSelectModule = (module: TrainingModule) => {
     setSelectedModule(module);
     setCode(brokenCodeSamples[module.id] ?? '// Select a challenge to begin');
-    setShowHint(false);
     setGrading(null);
     setSubmitError(null);
     setMobileListOpen(false);
@@ -194,15 +192,7 @@ export default function SandboxView() {
                     </div>
                   </div>
 
-                  {showHint && (
-                    <div
-                      className="mt-3 p-3 rounded-lg border flex items-start gap-2"
-                      style={{ background: 'rgba(217,119,6,0.08)', borderColor: 'rgba(217,119,6,0.25)' }}
-                    >
-                      <Lightbulb className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#d97706' }} />
-                      <p className="text-xs" style={{ color: '#b45309' }}>{hints[selectedModule.id] ?? 'Look harder...'}</p>
-                    </div>
-                  )}
+                  
                 </div>
 
                 {/* Editor */}
@@ -225,6 +215,15 @@ export default function SandboxView() {
                       automaticLayout: true,
                       padding: { top: 12, bottom: 12 },
                       fontFamily: "'JetBrains Mono', monospace",
+                      renderLineHighlight: 'none',
+                      occurrencesHighlight: 'off',
+                      selectionHighlight: false,
+                      quickSuggestions: false,
+                      parameterHints: { enabled: false },
+                      suggestOnTriggerCharacters: false,
+                      acceptSuggestionOnEnter: 'off',
+                      tabCompletion: 'off',
+                      wordBasedSuggestions: 'off',
                     }}
                   />
                 </div>
@@ -323,20 +322,6 @@ export default function SandboxView() {
                       </div>
                     )}
                   </div>
-
-                  <button
-                    onClick={() => setShowHint(true)}
-                    className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm border transition-colors"
-                    style={{
-                      background: 'rgba(217,119,6,0.08)',
-                      borderColor: 'rgba(217,119,6,0.25)',
-                      color: '#d97706',
-                    }}
-                  >
-                    <Lightbulb className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Hint </span>
-                    <span style={{ color: '#b45309' }}>(-{selectedModule.hintCost})</span>
-                  </button>
                 </div>
               </>
             ) : (

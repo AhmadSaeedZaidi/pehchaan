@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
-import { GraduationCap, Sword, ChevronRight, ArrowRight, CheckCircle2, Zap, Target } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { GraduationCap, Sword, ChevronRight, ArrowRight, CheckCircle2, Zap, Target, Sparkles, Code2, Layers } from 'lucide-react';
 import GithubIcon from '@/components/icons/GithubIcon';
+import TwitterIcon from '@/components/icons/TwitterIcon';
 import { useUser } from '@/context/UserContext';
 
 interface HomePageProps {
@@ -13,12 +14,78 @@ interface HomePageProps {
 const trainingSteps = ['Pick a skill', 'Find the bug', 'Fix it', 'Level up'];
 const arenaSteps = ['Pick a challenge', 'Race the clock', 'Earn your badge'];
 
+// Floating decorative elements
+const FloatingElements = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {/* Top left decorative */}
+    <div className="absolute top-20 left-10 opacity-15 animate-float-slow">
+      <Code2 className="w-8 h-8" style={{ color: 'var(--cyan)' }} />
+    </div>
+    <div className="absolute top-32 left-24 opacity-10 animate-float-medium">
+      <div className="text-xs font-mono" style={{ color: 'var(--green)' }}>{'</>'}</div>
+    </div>
+    {/* Top right decorative */}
+    <div className="absolute top-16 right-16 opacity-15 animate-float-slow">
+      <Layers className="w-10 h-10" style={{ color: 'var(--green)' }} />
+    </div>
+    <div className="absolute top-40 right-28 opacity-10 animate-float-fast">
+      <div className="text-xs font-mono" style={{ color: 'var(--cyan)' }}>{'{ }'}</div>
+    </div>
+    {/* Bottom decorative */}
+    <div className="absolute bottom-40 left-20 opacity-10 animate-float-medium">
+      <Sparkles className="w-6 h-6" style={{ color: 'var(--cyan)' }} />
+    </div>
+    <div className="absolute bottom-32 right-24 opacity-12 animate-float-slow">
+      <div className="text-xs font-mono" style={{ color: 'var(--green)' }}>[]</div>
+    </div>
+    {/* Center glow effects */}
+    <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-64 h-64 rounded-full opacity-[0.03]" style={{ background: 'var(--cyan)', filter: 'blur(80px)' }} />
+    <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-64 h-64 rounded-full opacity-[0.03]" style={{ background: 'var(--green)', filter: 'blur(80px)' }} />
+  </div>
+);
+
+// Animated title component
+function AnimatedTitle() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  return (
+    <div className="mb-5 sm:mb-6 relative">
+      <h1
+        className={`text-5xl sm:text-7xl lg:text-8xl font-bold leading-[0.95] tracking-tight transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        style={{ color: 'var(--text)' }}
+      >
+        Pehchaan
+      </h1>
+      <p
+        className={`mt-3 text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.4] transition-all duration-1000 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+        style={{
+          color: 'var(--cyan)',
+          fontFamily: '"Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif',
+        }}
+      >
+        پہچان
+      </p>
+      {/* Glow underline */}
+      <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan to-transparent transition-all duration-1000 delay-500 ${mounted ? 'w-full max-w-md' : 'w-0'}`} />
+    </div>
+  );
+}
+
 export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProps) {
   const [hovered, setHovered] = useState<'training' | 'arena' | null>(null);
   const { user } = useUser();
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen flex flex-col relative" style={{ background: 'var(--bg)' }}>
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{
+        backgroundImage: `radial-gradient(circle, var(--text) 1px, transparent 1px)`,
+        backgroundSize: '24px 24px'
+      }} />
+      
+      {/* Floating decorative elements */}
+      <FloatingElements />
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <div className="pt-20 sm:pt-24 pb-8 sm:pb-10 px-4 sm:px-6">
@@ -214,35 +281,60 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
 
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="border-t" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <img src="/pehchaan_logo.png" alt="Pehchaan" className="h-6 w-6 object-contain opacity-80" />
-            <span className="text-sm font-semibold" style={{ color: 'var(--text-2)' }}>Pehchaan</span>
-            <span className="text-xs" style={{ color: 'var(--text-3)' }}>© 2026</span>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img src="/pehchaan_logo.png" alt="Pehchaan" className="h-8 w-8 object-contain" />
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Pehchaan</span>
+              <span className="text-xs" style={{ color: 'var(--text-3)' }}>© 2026 · Pakistan & beyond</span>
+            </div>
           </div>
-          <p className="text-xs text-center sm:text-left" style={{ color: 'var(--text-3)' }}>
-            Open infrastructure for unrecognised talent · Pakistan & beyond
-          </p>
-          <div className="flex items-center gap-5 text-xs" style={{ color: 'var(--text-3)' }}>
+          
+          {/* Social icons */}
+          <div className="flex items-center gap-2">
             <a
-              href="https://github.com"
+              href="https://github.com/AhmadSaeedZaidi/pehchaan"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:underline transition-colors"
-              style={{ color: 'var(--text-3)' }}
+              className="p-2 rounded-lg transition-colors hover:scale-110"
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-2)' }}
+              title="GitHub"
             >
-              GitHub
+              <GithubIcon className="w-4 h-4" />
+            </a>
+            <a
+              href="https://twitter.com/pehchaan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg transition-colors hover:scale-110"
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-2)' }}
+              title="X (Twitter)"
+            >
+              <TwitterIcon className="w-4 h-4" />
             </a>
             <a
               href="mailto:hello@pehchaan.dev"
-              className="hover:underline transition-colors"
-              style={{ color: 'var(--text-3)' }}
+              className="p-2 rounded-lg transition-colors hover:scale-110"
+              style={{ background: 'var(--bg-secondary)', color: 'var(--text-2)' }}
+              title="Contact"
             >
-              Contact
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
             </a>
+          </div>
+
+          {/* Version badge */}
+          <div className="flex items-center gap-3">
             <span
-              className="px-2 py-0.5 rounded-md text-[10px] font-mono border"
-              style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}
+              className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold border"
+              style={{ 
+                borderColor: 'var(--border)', 
+                color: 'var(--text-3)',
+                background: 'var(--bg-secondary)',
+                boxShadow: '0 0 10px rgba(0,212,255,0.1)'
+              }}
             >
               v0.2-mvp
             </span>
@@ -323,20 +415,43 @@ function PathCard({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={onClick}
-      className="relative overflow-hidden sm:flex-1 group text-left"
+      className="relative overflow-hidden sm:flex-1 group text-left transition-all duration-300"
       style={{
-        minHeight: '380px',
-        opacity: isOtherHovered ? 0.65 : 1,
-        transition: 'opacity 0.4s ease',
+        minHeight: '420px',
+        opacity: isOtherHovered ? 0.7 : 1,
+        transform: isHovered ? 'scale(1.03)' : 'scale(1)',
+        boxShadow: isHovered 
+          ? `0 0 40px ${accent}40, 0 20px 40px rgba(0,0,0,0.3)` 
+          : '0 0 0 transparent',
+        transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        zIndex: isHovered ? 10 : 1,
       }}
     >
+      {/* Animated border glow */}
+      <div 
+        className="absolute inset-0 rounded-none transition-opacity duration-300"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          transition: 'opacity 0.3s ease',
+        }}
+      >
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: `linear-gradient(90deg, ${accent}, transparent, ${accent})`,
+            backgroundSize: '200% 100%',
+            animation: isHovered ? 'borderGlow 2s linear infinite' : 'none',
+          }} 
+        />
+      </div>
+
       <div className="absolute inset-0">
         <img
           src={imageSrc}
           alt={title}
           className="w-full h-full object-cover"
           style={{
-            transform: isHovered ? 'scale(1.06)' : 'scale(1)',
+            transform: isHovered ? 'scale(1.08)' : 'scale(1)',
             transition: 'transform 0.55s cubic-bezier(0.4,0,0.2,1)',
           }}
         />
@@ -344,7 +459,7 @@ function PathCard({
           className="absolute inset-0"
           style={{
             background: isHovered
-              ? 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.42) 55%, rgba(0,0,0,0.20) 100%)'
+              ? 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.25) 100%)'
               : 'linear-gradient(to top, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.10) 55%, rgba(0,0,0,0.0) 100%)',
             transition: 'background 0.4s ease',
           }}
@@ -353,45 +468,73 @@ function PathCard({
 
       <div
         className="relative z-10 h-full flex flex-col justify-between p-7 sm:p-10 lg:p-14"
-        style={{ minHeight: '380px' }}
+        style={{ minHeight: '420px' }}
       >
         <div>
           <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
             <div
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border backdrop-blur-sm flex-shrink-0"
-              style={{ background: accentBgStrong, borderColor: accentBorder, color: accent }}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border backdrop-blur-sm flex-shrink-0 transition-all duration-300"
+              style={{ 
+                background: isHovered ? accent : accentBgStrong, 
+                borderColor: isHovered ? 'transparent' : accentBorder, 
+                color: isHovered ? 'var(--bg)' : accent,
+                transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                boxShadow: isHovered ? `0 0 20px ${accent}` : 'none',
+              }}
             >
               {icon}
             </div>
             <div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-white">{title}</h3>
-              <p className="text-xs sm:text-sm" style={{ color: `color-mix(in srgb, ${accent} 80%, white 20%)` }}>
+              <h3 className="text-3xl sm:text-4xl font-bold text-white">{title}</h3>
+              <p className="text-sm sm:text-base font-medium" style={{ color: `color-mix(in srgb, ${accent} 90%, white 10%)` }}>
                 {subtitle}
               </p>
             </div>
           </div>
 
-          <div className="space-y-2.5 sm:space-y-3 mb-7 sm:mb-10">
+          <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
             {steps.map((step, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span
-                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0"
-                  style={{ background: accentBgFaint, border: `1px solid ${accentBorder}`, color: accent }}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 transition-all duration-300"
+                  style={{ 
+                    background: isHovered ? accent : accentBgFaint, 
+                    border: `1px solid ${isHovered ? 'transparent' : accentBorder}`, 
+                    color: isHovered ? 'var(--bg)' : accent,
+                    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                  }}
                 >
                   {i + 1}
                 </span>
-                <span className="text-sm sm:text-base font-medium text-white/90">{step}</span>
+                <span className="text-base sm:text-lg font-medium text-white/90">{step}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm font-semibold tracking-wide" style={{ color: accent }}>
-          {ctaLabel}
-          <ChevronRight
-            className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200"
-            style={{ transform: isHovered ? 'translateX(4px)' : 'translateX(0)' }}
-          />
+        <div className="flex items-center gap-3 text-base sm:text-lg font-bold tracking-wide" style={{ color: accent }}>
+          <span className={isHovered ? 'tracking-wider' : ''} style={{ transition: 'letter-spacing 0.3s ease' }}>
+            {ctaLabel}
+          </span>
+          <div 
+            className="relative overflow-hidden"
+            style={{ width: '24px', height: '24px' }}
+          >
+            <ChevronRight
+              className="absolute w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300"
+              style={{ 
+                transform: isHovered ? 'translateX(0) rotate(0deg)' : 'translateX(-24px) rotate(-90deg)',
+                opacity: isHovered ? 1 : 0,
+              }}
+            />
+            <ArrowRight
+              className="absolute w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300"
+              style={{ 
+                transform: isHovered ? 'translateX(0) rotate(0deg)' : 'translateX(24px) rotate(90deg)',
+                opacity: isHovered ? 1 : 0,
+              }}
+            />
+          </div>
         </div>
       </div>
     </button>

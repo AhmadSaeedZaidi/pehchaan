@@ -125,24 +125,27 @@ export default function ArenaView() {
                 </div>
               </div>
 
-              {/* Editor */}
-              <div className="flex-1 min-w-0 min-h-0" style={{ minHeight: '200px' }}>
-                <MonacoEditor
-                  height="100%"
-                  language="typescript"
-                  theme={theme === 'dark' ? 'vs-dark' : 'vs'}
-                  value={`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
-                  options={{
-                    minimap: { enabled: false },
-                    fontSize: 13,
-                    lineNumbers: 'on',
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                    padding: { top: 12 },
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                />
-              </div>
+                {/* Editor */}
+                <div className="flex-1 min-w-0 min-h-0" style={{ minHeight: '200px' }}>
+                  <MonacoEditor
+                    height="100%"
+                    language="typescript"
+                    theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+                    value={`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 13,
+                      lineNumbers: 'on',
+                      scrollBeyondLastLine: false,
+                      automaticLayout: true,
+                      padding: { top: 12 },
+                      fontFamily: "'JetBrains Mono', monospace",
+                      renderLineHighlight: 'none',
+                      occurrencesHighlight: 'off',
+                      selectionHighlight: false,
+                    }}
+                  />
+                </div>
             </div>
 
             {/* Terminal */}
