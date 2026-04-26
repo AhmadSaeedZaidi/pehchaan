@@ -18,9 +18,9 @@ interface DifficultyConfig {
 }
 
 const difficultyConfig: Record<TrainingModule['difficulty'], DifficultyConfig> = {
-  beginner:     { label: 'Medium',   color: '#16a34a', bg: 'rgba(22,163,74,0.1)', border: 'rgba(22,163,74,0.25)' },
-  intermediate: { label: 'Hard', color: '#d97706', bg: 'rgba(217,119,6,0.1)', border: 'rgba(217,119,6,0.25)' },
-  advanced:     { label: 'Brutal',   color: '#dc2626', bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)' },
+  beginner:     { label: 'Beginner',     color: '#10b981', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)' },
+  intermediate: { label: 'Intermediate', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.25)' },
+  advanced:     { label: 'Advanced',     color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.25)' },
 };
 
 interface GradingResult {

@@ -6,8 +6,11 @@ import dynamic from 'next/dynamic';
 import { bounties, generateTerminalLines } from '@/data/mockData';
 import { Bounty, TerminalLine } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
+import { useUser } from '@/context/UserContext';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
+
+const getInitialCode = (title: string) => `// ${title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`;
 
 function formatTime(s: number) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -29,12 +32,15 @@ const lineColors: Record<TerminalLine['type'], string> = {
 
 export default function ArenaView() {
   const { theme } = useTheme();
+  const { user, updateUser } = useUser();
   const [selectedBounty, setSelectedBounty] = useState<Bounty | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
+  const [code, setCode] = useState('');
+  const [pointsEarned, setPointsEarned] = useState(0);
 
   const startChallenge = useCallback((bounty: Bounty) => {
     setSelectedBounty(bounty);
@@ -42,6 +48,7 @@ export default function ArenaView() {
     setTerminalLines(generateTerminalLines(bounty.techStack));
     setShowFailure(false);
     setShowSuccess(false);
+    setCode(getInitialCode(bounty.title));
   }, []);
 
   useEffect(() => {
@@ -55,13 +62,48 @@ export default function ArenaView() {
     return () => clearInterval(id);
   }, [selectedBounty, timeRemaining]);
 
-  const handleDeployFix = () => {
+  const handleDeployFix = async () => {
+    if (!selectedBounty) return;
+    if (!user) {
+      alert("Please login first to submit Arena bounties.");
+      return;
+    }
+
     setIsRunning(true);
-    setTimeout(() => {
+    setShowFailure(false);
+    setShowSuccess(false);
+
+    try {
+      const res = await fetch('/api/arena', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          bountyId: selectedBounty.id,
+          submittedCode: code,
+        }),
+      });
+
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Submission failed');
+      }
+
+      if (data.updatedUser) updateUser(data.updatedUser);
+
+      if (data.grading?.success) {
+        setPointsEarned(data.pointsAwarded || 0);
+        setShowSuccess(true);
+      } else {
+        setShowFailure(true);
+      }
+    } catch (err: any) {
+      console.error("Deploy err", err);
+      setShowFailure(true);
+    } finally {
       setIsRunning(false);
-      if (Math.random() > 0.3) setShowSuccess(true);
-      else setShowFailure(true);
-    }, 2000);
+    }
   };
 
   const handleClose = () => { setSelectedBounty(null); setShowFailure(false); setShowSuccess(false); };
@@ -131,7 +173,8 @@ export default function ArenaView() {
                     height="100%"
                     language="typescript"
                     theme={theme === 'dark' ? 'vs-dark' : 'vs'}
-                    value={`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
+                    value={code}
+                    onChange={(v) => setCode(v ?? '')}
                     options={{
                       minimap: { enabled: false },
                       fontSize: 13,
@@ -257,7 +300,7 @@ export default function ArenaView() {
               <h2 className="text-lg sm:text-xl font-bold mb-1" style={{ color: 'var(--text)' }}>Badge Earned</h2>
               <p className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>{selectedBounty?.title}</p>
               <div className="rounded-xl p-4 mb-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{selectedBounty?.reward}</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{pointsEarned}</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Pehchaan Trust Score</p>
               </div>
               <button onClick={handleClose} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: '#16a34a' }}>

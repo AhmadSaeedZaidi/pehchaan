@@ -172,7 +172,7 @@ Grade this submission now and return JSON only.
 
     if (grading.success) {
       pointsAwarded = Math.round(
-        CHALLENGE_COMPLETION_POINTS * (grading.score / 100),
+        (challenge.points || 100) * (grading.score / 100),
       );
       const afterScore = await updateUserScore(userId, pointsAwarded);
       const afterBadge = await addBadge(userId, challengeId);
