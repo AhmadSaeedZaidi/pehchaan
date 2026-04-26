@@ -71,8 +71,9 @@ export default function ArenaView() {
     <div className="pt-14 sm:pt-16 min-h-screen" style={{ background: 'var(--bg)' }}>
       <div className="max-w-[1800px] mx-auto px-3 sm:px-6 py-5 sm:py-8">
         <div className="mb-4 sm:mb-6 pl-12 sm:pl-16">
-          <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--text)' }}>The Arena</h1>
-          <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>Prove what you know. Earn your badges.</p>
+            <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--text)' }}>
+              The Arena <span style={{ fontFamily: '"Noto Nastaliq Urdu", serif', fontWeight: 600, fontSize: '1.2em' }}>/ مقابلہ</span>
+            </h1>
         </div>
 
         {selectedBounty ? (
@@ -139,8 +140,7 @@ export default function ArenaView() {
                     scrollBeyondLastLine: false,
                     automaticLayout: true,
                     padding: { top: 12 },
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
+                    fontFamily: "'JetBrains Mono', monospace",                      renderValidationDecorations: 'off',                  }}
                 />
               </div>
             </div>

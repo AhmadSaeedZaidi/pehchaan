@@ -44,17 +44,7 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
             className="h-8 w-8 object-contain"
           />
           <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
-            Pehchaan
-          </span>
-        </button>
-
-        {/* Desktop nav */}
-        <div className="hidden sm:flex items-center gap-1.5">
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg transition-colors"
-            style={{ color: 'var(--text-3)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-secondary)')}
+              Pehchaan <span style={{ fontFamily: '"Noto Nastaliq Urdu", serif', fontWeight: 600, marginLeft: '4px' }}>/ پہچان</span>
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
             title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
