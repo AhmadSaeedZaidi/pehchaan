@@ -3,11 +3,13 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
+import LoginModal from '@/components/LoginModal';
 import HomePage from '@/components/views/HomePage';
 import SandboxView from '@/components/views/SandboxView';
 import ArenaView from '@/components/views/ArenaView';
 import ProfileView from '@/components/views/ProfileView';
 import { ModeProvider } from '@/context/ModeContext';
+import { useUser } from '@/context/UserContext';
 
 type View = 'home' | 'sandbox' | 'arena' | 'profile';
 
@@ -29,15 +31,24 @@ function BackButton({ onClick }: { onClick: () => void }) {
 }
 
 function MainContent() {
+  const { user } = useUser();
   const [view, setView] = useState<View>('home');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+
+  function requireLogin(target: View) {
+    if (user) {
+      setView(target);
+    } else {
+      setLoginOpen(true);
+    }
+  }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
       <Header
-        isLoggedIn={isLoggedIn}
-        onLoginClick={() => setIsLoggedIn(true)}
-        onProfileClick={() => setView('profile')}
+        onLoginClick={() => setLoginOpen(true)}
+        onProfileClick={() => requireLogin('profile')}
+        onLogoClick={() => setView('home')}
       />
 
       {view !== 'home' && <BackButton onClick={() => setView('home')} />}
@@ -45,12 +56,14 @@ function MainContent() {
       {view === 'home' && (
         <HomePage
           onEnterTraining={() => setView('sandbox')}
-          onEnterArena={() => setView('arena')}
+          onEnterArena={() => requireLogin('arena')}
         />
       )}
       {view === 'sandbox' && <SandboxView />}
       {view === 'arena' && <ArenaView />}
       {view === 'profile' && <ProfileView />}
+
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }

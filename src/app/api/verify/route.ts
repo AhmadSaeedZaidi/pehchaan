@@ -6,6 +6,8 @@ import {
   updateUserStatus,
   ensureSchema,
 } from "@/lib/db";
+import { callGemini, parseJsonResponse } from "@/lib/gemini";
+import { trainingModules, brokenCodeSamples, hints } from "@/data/mockData";
 
 interface VerifyRequestBody {
   userId: string;
@@ -13,49 +15,77 @@ interface VerifyRequestBody {
   submittedCode: string;
 }
 
-interface LLMGradingResponse {
+interface GradingResult {
   success: boolean;
-  score: number;
-  feedback: string;
-}
-
-interface GeminiPart {
-  text: string;
-  thought?: boolean;
-}
-
-interface GeminiResponse {
-  candidates: Array<{
-    content: { parts: GeminiPart[] };
-  }>;
+  score: number;       // 0–100
+  feedback: string;    // 1–2 sentences
+  bugIdentified: string;
+  improvements?: string[];
 }
 
 const CHALLENGE_COMPLETION_POINTS = 400;
-const GEMINI_MODEL = "gemma-4-31b-it";
+
+const GRADING_SYSTEM_INSTRUCTIONS = `
+You are Pehchaan's Code Adjudicator — a senior staff engineer who grades developer
+fixes with the precision of a code review.
+
+You will be given retrieved context for a single training challenge:
+  1. The challenge title and description
+  2. The original buggy code
+  3. The canonical hint describing the bug
+  4. The user's submitted fix
+
+You must determine whether the user genuinely identified and resolved the core
+bug — not just made cosmetic changes or hidden the symptom.
+
+Hard rules:
+- Output ONLY a single valid JSON object. No markdown, no prose before or after.
+- "success" is true ONLY if the core bug is fixed correctly.
+- A regex search for the right keyword does NOT count — the fix must be semantically
+  correct in context.
+- "score" reflects the QUALITY of the fix, not just whether it works:
+    0–30  = made it worse / fundamentally wrong
+   31–60  = bug touched but not fully solved, or new bugs introduced
+   61–80  = correct fix, could be cleaner
+   81–100 = correct, idiomatic, production-quality fix
+- "feedback" is 1 to 2 short sentences (max 30 words), direct and actionable.
+- "bugIdentified" describes — in 1 short sentence — what bug the user fixed
+  (or what they *should* have fixed if they failed).
+- "improvements" is optional: 0–3 bullet-style hints (max 12 words each).
+
+Output schema:
+{
+  "success": boolean,
+  "score": number,
+  "feedback": string,
+  "bugIdentified": string,
+  "improvements": string[]
+}
+`.trim();
 
 export async function POST(request: NextRequest) {
   try {
     await ensureSchema();
 
-    const body: VerifyRequestBody = await request.json();
+    const body = (await request.json()) as VerifyRequestBody;
     const { userId, challengeId, submittedCode } = body;
 
     if (!userId || typeof userId !== "string") {
       return NextResponse.json(
         { error: "userId is required and must be a string" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (!challengeId || typeof challengeId !== "string") {
       return NextResponse.json(
         { error: "challengeId is required and must be a string" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (!submittedCode || typeof submittedCode !== "string") {
       return NextResponse.json(
         { error: "submittedCode is required and must be a string" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -64,104 +94,108 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-    if (!geminiApiKey) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
         { error: "GEMINI_API_KEY environment variable is not configured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    const prompt = `You are an expert code evaluator for a developer verification platform.
+    // RAG retrieval — pull challenge metadata, original buggy code, and canonical hint
+    const challenge = trainingModules.find((m) => m.id === challengeId);
+    const originalCode = brokenCodeSamples[challengeId];
+    const canonicalHint = hints[challengeId];
 
-The user submitted the following code as their fix for a buggy challenge:
+    if (!challenge || !originalCode) {
+      return NextResponse.json(
+        { error: `Unknown challengeId: ${challengeId}` },
+        { status: 400 },
+      );
+    }
 
+    const userMessage = `
+## Challenge
+- Title: ${challenge.title}
+- Description: ${challenge.description}
+- Tech stack: ${challenge.techStack}
+- Difficulty: ${challenge.difficulty}
+
+## Original buggy code
+\`\`\`
+${originalCode}
+\`\`\`
+
+## Canonical hint (the actual bug)
+${canonicalHint ?? "(no hint available)"}
+
+## User's submitted fix
 \`\`\`
 ${submittedCode}
 \`\`\`
 
-Analyze whether they successfully identified and fixed the bug without breaking anything else. Be strict but fair.
+Grade this submission now and return JSON only.
+`.trim();
 
-Reply ONLY with a valid JSON object — no markdown fences, no explanation outside the JSON:
-{"success": boolean, "score": number, "feedback": "One short punchy sentence."}
+    const raw = await callGemini({
+      systemInstructions: GRADING_SYSTEM_INSTRUCTIONS,
+      userMessage,
+      temperature: 0.15,
+      maxOutputTokens: 1024,
+    });
 
-Where:
-- success: true only if the core bug is genuinely fixed
-- score: 0–100 representing quality of the fix
-- feedback: one concise sentence (max 15 words)`;
-
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 1024, // needs room for thinking tokens + response
-          },
-        }),
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error("Gemini API error:", errorText);
-      throw new Error(`Gemini API returned status ${geminiResponse.status}`);
-    }
-
-    const geminiData: GeminiResponse = await geminiResponse.json();
-    // Gemma 4 returns thinking tokens first (thought: true) — find the actual response part
-    const parts = geminiData.candidates[0]?.content?.parts ?? [];
-    const llmContent = parts.find((p) => !p.thought)?.text;
-
-    if (!llmContent) throw new Error("No content received from Gemini API");
-
-    let gradingResult: LLMGradingResponse;
+    let grading: GradingResult;
     try {
-      // Strip any accidental markdown fences the model may emit
-      const cleaned = llmContent.replace(/```json?\n?/g, "").replace(/```/g, "").trim();
-      gradingResult = JSON.parse(cleaned);
-    } catch {
-      console.error("Failed to parse Gemini response as JSON:", llmContent);
-      throw new Error("Invalid JSON response from Gemini");
+      grading = parseJsonResponse<GradingResult>(raw);
+    } catch (parseErr) {
+      console.error("Failed to parse Gemini grading response:", raw, parseErr);
+      return NextResponse.json(
+        { error: "Grading service returned malformed JSON" },
+        { status: 502 },
+      );
     }
 
     if (
-      typeof gradingResult.success !== "boolean" ||
-      typeof gradingResult.score !== "number" ||
-      typeof gradingResult.feedback !== "string"
+      typeof grading.success !== "boolean" ||
+      typeof grading.score !== "number" ||
+      typeof grading.feedback !== "string"
     ) {
-      throw new Error("Malformed grading result from Gemini");
+      return NextResponse.json(
+        { error: "Grading service returned invalid shape" },
+        { status: 502 },
+      );
     }
 
-    gradingResult.score = Math.min(100, Math.max(0, gradingResult.score));
+    grading.score = Math.min(100, Math.max(0, Math.round(grading.score)));
 
     let updatedUser = user;
+    let pointsAwarded = 0;
 
-    if (gradingResult.success) {
-      await updateUserScore(userId, CHALLENGE_COMPLETION_POINTS);
-      await addBadge(userId, challengeId);
-      updatedUser = (await updateUserStatus(userId, "Verified Dev")) ?? user;
+    if (grading.success) {
+      pointsAwarded = Math.round(
+        CHALLENGE_COMPLETION_POINTS * (grading.score / 100),
+      );
+      const afterScore = await updateUserScore(userId, pointsAwarded);
+      const afterBadge = await addBadge(userId, challengeId);
+      const afterStatus = await updateUserStatus(userId, "Verified Dev");
+      updatedUser = afterStatus ?? afterBadge ?? afterScore ?? user;
     }
 
     return NextResponse.json({
-      grading: gradingResult,
+      grading,
       updatedUser,
-      pointsAwarded: gradingResult.success ? CHALLENGE_COMPLETION_POINTS : 0,
+      pointsAwarded,
     });
   } catch (error) {
     console.error("Verify route error:", error);
     if (error instanceof SyntaxError) {
       return NextResponse.json(
         { error: "Invalid JSON in request body" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     return NextResponse.json(
       { error: "Internal server error during verification" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -173,7 +207,7 @@ export async function GET(request: NextRequest) {
   if (!userId) {
     return NextResponse.json(
       { error: "userId query parameter is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -194,7 +228,7 @@ export async function GET(request: NextRequest) {
     console.error("Verify GET error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
