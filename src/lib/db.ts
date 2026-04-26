@@ -30,6 +30,7 @@ export async function ensureSchema() {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS primary_languages TEXT[] NOT NULL DEFAULT '{}'`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS skill_estimates   JSONB  NOT NULL DEFAULT '{}'::jsonb`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_summary   TEXT`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS solutions         JSONB  NOT NULL DEFAULT '{}'::jsonb`;
 }
 
 // ---------------------------------------------------------------------------
@@ -59,6 +60,7 @@ export interface User {
   primaryLanguages: string[];
   skillEstimates: SkillEstimates;
   profileSummary: string | null;
+  solutions?: Record<string, string>;
 }
 
 export interface ProfileEnrichment {
@@ -86,6 +88,7 @@ function rowToUser(row: any): User {
     primaryLanguages: row.primary_languages ?? [],
     skillEstimates: (row.skill_estimates ?? {}) as SkillEstimates,
     profileSummary: row.profile_summary ?? null,
+    solutions: (row.solutions ?? {}) as Record<string, string>,
   };
 }
 
@@ -148,6 +151,21 @@ export async function addBadge(
       array_remove(badges, ${badge}::text),
       ${badge}::text
     )
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return rows[0] ? rowToUser(rows[0]) : undefined;
+}
+
+export async function saveSolution(
+  id: string,
+  challengeId: string,
+  code: string,
+): Promise<User | undefined> {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE users
+    SET solutions = solutions || jsonb_build_object(${challengeId}::text, ${code}::text)
     WHERE id = ${id}
     RETURNING *
   `;
