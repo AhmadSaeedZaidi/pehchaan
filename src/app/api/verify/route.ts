@@ -3,7 +3,6 @@ import {
   getUser,
   updateUserScore,
   addBadge,
-  saveSolution,
   updateUserStatus,
   ensureSchema,
 } from "@/lib/db";
@@ -172,20 +171,13 @@ Grade this submission now and return JSON only.
     let pointsAwarded = 0;
 
     if (grading.success) {
-      const alreadySolved = user.badges?.includes(challengeId);
-
-      if (!alreadySolved) {
-        pointsAwarded = Math.round(
-          (challenge.points || 100) * (grading.score / 100),
-        );
-        const afterScore = await updateUserScore(userId, pointsAwarded);
-        const afterBadge = await addBadge(userId, challengeId);
-        const afterStatus = await updateUserStatus(userId, "Verified Dev");
-        updatedUser = afterStatus ?? afterBadge ?? afterScore ?? user;
-      }
-      
-      const afterSolution = await saveSolution(userId, challengeId, submittedCode);
-      if (afterSolution) updatedUser = afterSolution;
+      pointsAwarded = Math.round(
+        CHALLENGE_COMPLETION_POINTS * (grading.score / 100),
+      );
+      const afterScore = await updateUserScore(userId, pointsAwarded);
+      const afterBadge = await addBadge(userId, challengeId);
+      const afterStatus = await updateUserStatus(userId, "Verified Dev");
+      updatedUser = afterStatus ?? afterBadge ?? afterScore ?? user;
     }
 
     return NextResponse.json({
@@ -231,7 +223,6 @@ export async function GET(request: NextRequest) {
       ptsScore: user.ptsScore,
       status: user.status,
       completedChallenges: user.badges,
-      solutions: user.solutions,
     });
   } catch (error) {
     console.error("Verify GET error:", error);

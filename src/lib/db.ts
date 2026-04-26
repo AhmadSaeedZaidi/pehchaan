@@ -60,7 +60,7 @@ export interface User {
   primaryLanguages: string[];
   skillEstimates: SkillEstimates;
   profileSummary: string | null;
-  solutions: Record<string, string>;
+  solutions?: Record<string, string>;
 }
 
 export interface ProfileEnrichment {

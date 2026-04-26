@@ -3,37 +3,45 @@
 @tailwind utilities;
 
 /* ── CSS Variables ─────────────────────────────────────────────── */
+/* Paper-Texture Minimalist Mid-Century Modern / Organic Boho Theme */
 :root {
-  /* surfaces */
-  --bg:          #f8f8f6;
-  --bg-secondary: #efeeeb;
-  --bg-tertiary: #e8e7e4;
-  --border:      rgba(0,0,0,0.09);
-  --border-strong: rgba(0,0,0,0.15);
+  /* Color Palette */
+  --cream:          #fbf1e0;    /* Soft Sand (Background) */
+  --pink:           #c4928f;    /* Dusty Rose (darker for better legibility) */
+  --green:          #8fa87a;    /* Sage Green (darker for better legibility) */
+  --slate:          #1E3A5F;    /* Deep Navy (More prominent) */
+  --beige:          #F1E3D3;    /* Light Parchment (Secondary Beige) */
+  
+  /* Surfaces - Using the palette */
+  --bg:             #fbf1e0;    /* Soft Sand */
+  --bg-secondary:   #F1E3D3;    /* Light Parchment */
+  --bg-tertiary:     #E0D5C7;    /* Slightly darker parchment */
+  --border:         rgba(30, 41, 59, 0.12);
+  --border-strong:  rgba(30, 41, 59, 0.25);
 
-  /* text */
-  --text:        #111110;
-  --text-2:      #444441;
-  --text-3:      #888884;
-
-  /* accent */
-  --cyan:        #00b4d8;
-  --green:       #00c472;
+  /* Text - Deep Navy variations */
+  --text:           #1E3A5F;    /* Deep Navy - primary text */
+  --text-2:         #2C4A6E;   /* Deep Navy - secondary text */
+  --text-3:         #3A5A7C;   /* Lighter navy - muted text */
+  
+  /* Semantic - using theme colors - darker variants for better legibility */
+  --cyan:           #c4928f;    /* Dusty Rose - darker for legibility */
+  --green-accent:   #8fa87a;    /* Sage Green - darker for legibility */
 }
 
 .dark {
-  --bg:          #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-tertiary: #1a1a1a;
-  --border:      rgba(255,255,255,0.07);
-  --border-strong: rgba(255,255,255,0.14);
+  --bg:             #1E2028;
+  --bg-secondary:   #252830;
+  --bg-tertiary:    #2E323C;
+  --border:         rgba(226, 213, 211, 0.08);
+  --border-strong:  rgba(226, 213, 211, 0.15);
 
-  --text:        #f5f5f3;
-  --text-2:      #a0a09c;
-  --text-3:      #666662;
-
-  --cyan:        #00d4ff;
-  --green:       #00ff88;
+  --text:           #F1E3D3;    /* Light Parchment */
+  --text-2:         #C9BFB0;
+  --text-3:         #8A8377;
+  
+  --cyan:           #d09e9b;    /* Dusty Rose */
+  --green-accent:   #a5bc94;    /* Sage Green */
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
@@ -41,11 +49,26 @@
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
+}
+
+/* Paper texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
 code, pre, .font-mono {
@@ -67,28 +90,29 @@ code, pre, .font-mono {
 .text-base      { color: var(--text); }
 .text-muted     { color: var(--text-2); }
 .text-faint     { color: var(--text-3); }
-.text-cyan      { color: var(--cyan); }
-.text-green     { color: var(--green); }
+.text-pink      { color: var(--pink); }
+.text-green     { color: var(--green-accent); }
+.text-slate     { color: var(--slate); }
 
 /* ── Animations ───────────────────────────────────────────────── */
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-15px) rotate(5deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
 }
 
 @keyframes float-medium {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(-3deg); }
+  50% { transform: translateY(-8px) rotate(-2deg); }
 }
 
 @keyframes float-fast {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(3deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
 }
 
-@keyframes borderGlow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+@keyframes blob-morph {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
 }
 
 .animate-float-slow {
@@ -103,10 +127,201 @@ code, pre, .font-mono {
   animation: float-fast 3s ease-in-out infinite;
 }
 
+.animate-blob {
+  animation: blob-morph 8s ease-in-out infinite;
+}
+
+/* ── Organic Blob Shapes ──────────────────────────────────────── */
+.blob-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-shape {
+  position: absolute;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  filter: blur(1px);
+}
+
+/* ── Ambient Blob Blur ───────────────────────────────────────── */
+.blob-blur {
+  filter: blur(40px);
+  opacity: 0.6;
+}
+
+/* ── Stat Card with Depth ───────────────────────────────────── */
+.stat-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px -10px rgba(0,0,50,0.08);
+}
+
+/* ── Paper Texture Overlay ───────────────────────────────────── */
+.paper-texture {
+  position: relative;
+}
+
+.paper-texture::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ── Pill Buttons (Slate #3C415C) ──────────────────────────────── */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  border-radius: 9999px; /* Full pill shape */
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-pill-primary {
+  background-color: var(--slate);
+  color: var(--beige);
+}
+
+.btn-pill-primary:hover {
+  background-color: #4A5068;
+  transform: translateY(-1px);
+}
+
+.btn-pill-secondary {
+  background-color: var(--green-accent);
+  color: var(--slate);
+}
+
+.btn-pill-secondary:hover {
+  background-color: #B4C092;
+  transform: translateY(-1px);
+}
+
+.btn-pill-outline {
+  background-color: transparent;
+  color: var(--slate);
+  border: 1.5px solid var(--slate);
+}
+
+.btn-pill-outline:hover {
+  background-color: var(--slate);
+  color: var(--beige);
+}
+
+/* ── Celestial Icons (Thin-line) ──────────────────────────────── */
+.celestial-icon {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── High Whitespace Layout ───────────────────────────────────── */
+.section-breathing {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (min-width: 640px) {
+  .section-breathing {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* ── Overlapping Elements (Depth without shadows) ────────────── */
+.overlap-layer {
+  position: relative;
+  z-index: 1;
+}
+
+.overlap-element {
+  position: absolute;
+  z-index: 0;
+}
+
+.overlap-forward {
+  position: relative;
+  z-index: 10;
+}
+
 /* ── Background Patterns ─────────────────────────────────────── */
+.pattern-dots {
+  background-image: radial-gradient(var(--border) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
 .pattern-grid {
   background-image: 
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+
+/* ── Typography Helpers ──────────────────────────────────────── */
+.font-display {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.font-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.text-heading {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.text-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ── Minimalist Cards ─────────────────────────────────────────── */
+.card-minimal {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card-minimal:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+}
+
+/* ── Gradient Overlays ───────────────────────────────────────── */
+.gradient-cream-pink {
+  background: linear-gradient(135deg, var(--cream) 0%, var(--pink) 100%);
+}
+
+.gradient-cream-green {
+  background: linear-gradient(135deg, var(--cream) 0%, var(--green-accent) 100%);
+}
+
+.gradient-organic {
+  background: linear-gradient(180deg, var(--cream) 0%, var(--beige) 50%, var(--cream) 100%);
 }
