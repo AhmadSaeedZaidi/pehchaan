@@ -86,22 +86,22 @@ export async function POST(request: NextRequest) {
 
     const bounty = bounties.find((b) => b.id === bountyId);
     if (!bounty) {
-      return NextResponse.json({ error: \`Unknown bountyId: \${bountyId}\` }, { status: 400 });
+      return NextResponse.json({ error: `Unknown bountyId: ${bountyId}` }, { status: 400 });
     }
 
-    const userMessage = \`
+    const userMessage = `
 ## Arena Bounty
-- Title: \${bounty.title}
-- Repo: \${bounty.repo}
-- Tech Stack: \${bounty.techStack}
+- Title: ${bounty.title}
+- Repo: ${bounty.repo}
+- Tech Stack: ${bounty.techStack}
 
 ## User's Submitted Code
 \`\`\`
-\${submittedCode}
+${submittedCode}
 \`\`\`
 
 Evaluate this submission immediately.
-\`.trim();
+`.trim();
 
     const raw = await callGemini({
       systemInstructions: ARENA_GRADING_SYSTEM_INSTRUCTIONS,
