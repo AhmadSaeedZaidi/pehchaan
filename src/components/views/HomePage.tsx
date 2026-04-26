@@ -97,7 +97,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
         <PathCard
           variant="training"
           imageSrc="/left.png"
-          title="The Sandbox / تیاری"
+          title="The Sandbox"
           subtitle="Zero pressure training"
           icon={<GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" />}
           steps={trainingSteps}
@@ -119,7 +119,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
         <PathCard
           variant="arena"
           imageSrc="/right.png"
-          title="The Arena / مقابلہ"
+          title="The Arena"
           subtitle="High-stakes verification"
           icon={<Sword className="w-6 h-6 sm:w-7 sm:h-7" />}
           steps={arenaSteps}
@@ -214,37 +214,38 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
 
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="border-t" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col items-center gap-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4">
-            <div className="flex items-center gap-3">
-              <img src="/pehchaan_logo.png" alt="Pehchaan" className="h-7 w-7 object-contain opacity-90" />
-              <span className="text-base font-bold tracking-tight" style={{ color: 'var(--text)' }}>Pehchaan</span>
-              <span className="text-sm font-semibold" style={{ color: 'var(--text-3)', fontFamily: '"Noto Nastaliq Urdu", serif' }}>پہچان</span>
-              <span className="text-xs" style={{ color: 'var(--text-3)' }}>© 2026</span>
-            </div>
-            
-            <div className="flex items-center gap-6 text-sm font-medium" style={{ color: 'var(--text-2)' }}>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase font-mono tracking-wider" style={{ color: 'var(--text-3)' }}>Powered By</span>
-              </div>
-              <span className="hover:text-[var(--cyan)] transition-colors cursor-default">Neon Postgres</span>
-              <span className="hover:text-[var(--cyan)] transition-colors cursor-default">Vercel</span>
-              <span className="hover:text-[var(--cyan)] transition-colors cursor-default">Google Gemini</span>
-              <span className="hover:text-[var(--cyan)] transition-colors cursor-default">Next.js 16</span>
-            </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <img src="/pehchaan_logo.png" alt="Pehchaan" className="h-6 w-6 object-contain opacity-80" />
+            <span className="text-sm font-semibold" style={{ color: 'var(--text-2)' }}>Pehchaan</span>
+            <span className="text-xs" style={{ color: 'var(--text-3)' }}>© 2026</span>
           </div>
-          
-          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-            <p className="text-xs text-center sm:text-left" style={{ color: 'var(--text-3)' }}>
-              Open infrastructure for unrecognised talent · Pakistan & beyond
-            </p>
-            <div className="flex items-center gap-5 text-xs" style={{ color: 'var(--text-3)' }}>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:underline transition-colors">GitHub</a>
-              <a href="mailto:hello@pehchaan.dev" className="hover:underline transition-colors">Contact</a>
-              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono border" style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)' }}>
-                v0.2-mvp
-              </span>
-            </div>
+          <p className="text-xs text-center sm:text-left" style={{ color: 'var(--text-3)' }}>
+            Open infrastructure for unrecognised talent · Pakistan & beyond
+          </p>
+          <div className="flex items-center gap-5 text-xs" style={{ color: 'var(--text-3)' }}>
+            <a
+              href="https://github.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline transition-colors"
+              style={{ color: 'var(--text-3)' }}
+            >
+              GitHub
+            </a>
+            <a
+              href="mailto:hello@pehchaan.dev"
+              className="hover:underline transition-colors"
+              style={{ color: 'var(--text-3)' }}
+            >
+              Contact
+            </a>
+            <span
+              className="px-2 py-0.5 rounded-md text-[10px] font-mono border"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}
+            >
+              v0.2-mvp
+            </span>
           </div>
         </div>
       </footer>
@@ -325,10 +326,8 @@ function PathCard({
       className="relative overflow-hidden sm:flex-1 group text-left"
       style={{
         minHeight: '380px',
-        transform: isHovered ? 'scale(1.02)' : 'scale(1)',
-        zIndex: isHovered ? 20 : 1,
-        boxShadow: isHovered ? '0 25px 50px -12px rgba(0,0,0,0.5)' : 'none',
-        transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
+        opacity: isOtherHovered ? 0.65 : 1,
+        transition: 'opacity 0.4s ease',
       }}
     >
       <div className="absolute inset-0">
@@ -344,7 +343,9 @@ function PathCard({
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(to top, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.20) 55%, rgba(0,0,0,0.1) 100%)',
+            background: isHovered
+              ? 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.42) 55%, rgba(0,0,0,0.20) 100%)'
+              : 'linear-gradient(to top, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.10) 55%, rgba(0,0,0,0.0) 100%)',
             transition: 'background 0.4s ease',
           }}
         />
@@ -387,9 +388,10 @@ function PathCard({
 
         <div className="flex items-center gap-2 text-sm font-semibold tracking-wide" style={{ color: accent }}>
           {ctaLabel}
-          <div className="overflow-hidden flex items-center" style={{ width: isHovered ? '24px' : '0px', transition: 'width 0.3s ease', opacity: isHovered ? 1 : 0 }}>
-            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300" style={{ transform: isHovered ? 'translateX(0)' : 'translateX(-10px)' }} />
-          </div>
+          <ChevronRight
+            className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200"
+            style={{ transform: isHovered ? 'translateX(4px)' : 'translateX(0)' }}
+          />
         </div>
       </div>
     </button>

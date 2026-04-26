@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Play, Lightbulb, Trophy, Zap, ChevronDown, CheckCircle2, XCircle, Loader2, AlertCircle } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { trainingModules, brokenCodeSamples } from '@/data/mockData';
+import { trainingModules, brokenCodeSamples, hints } from '@/data/mockData';
 import { TrainingModule } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
@@ -36,6 +36,7 @@ export default function SandboxView() {
   const { user, updateUser } = useUser();
   const [selectedModule, setSelectedModule] = useState<TrainingModule | null>(null);
   const [code, setCode] = useState('');
+  const [showHint, setShowHint] = useState(false);
   const [grading, setGrading] = useState<GradingResult | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -44,6 +45,7 @@ export default function SandboxView() {
   const handleSelectModule = (module: TrainingModule) => {
     setSelectedModule(module);
     setCode(brokenCodeSamples[module.id] ?? '// Select a challenge to begin');
+    setShowHint(false);
     setGrading(null);
     setSubmitError(null);
     setMobileListOpen(false);
@@ -128,9 +130,7 @@ export default function SandboxView() {
       <div className="max-w-[1800px] mx-auto px-3 sm:px-6 py-5 sm:py-8">
         {/* Page header */}
         <div className="mb-4 sm:mb-6 pl-12 sm:pl-16">
-            <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text)' }}>
-              The Sandbox <span style={{ fontFamily: '"Noto Nastaliq Urdu", serif', fontWeight: 600, fontSize: '1.2em' }}>/ تیاری</span>
-            </h1>
+          <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text)' }}>The Sandbox</h1>
           <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>
             Zero pressure. Learn by doing. Sign in to track progress.
           </p>
@@ -193,6 +193,16 @@ export default function SandboxView() {
                       <span className="font-bold text-sm tabular-nums" style={{ color: 'var(--text)' }}>+{selectedModule.points}</span>
                     </div>
                   </div>
+
+                  {showHint && (
+                    <div
+                      className="mt-3 p-3 rounded-lg border flex items-start gap-2"
+                      style={{ background: 'rgba(217,119,6,0.08)', borderColor: 'rgba(217,119,6,0.25)' }}
+                    >
+                      <Lightbulb className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: '#d97706' }} />
+                      <p className="text-xs" style={{ color: '#b45309' }}>{hints[selectedModule.id] ?? 'Look harder...'}</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Editor */}
@@ -215,7 +225,6 @@ export default function SandboxView() {
                       automaticLayout: true,
                       padding: { top: 12, bottom: 12 },
                       fontFamily: "'JetBrains Mono', monospace",
-                      renderValidationDecorations: 'off',
                     }}
                   />
                 </div>
@@ -314,6 +323,20 @@ export default function SandboxView() {
                       </div>
                     )}
                   </div>
+
+                  <button
+                    onClick={() => setShowHint(true)}
+                    className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm border transition-colors"
+                    style={{
+                      background: 'rgba(217,119,6,0.08)',
+                      borderColor: 'rgba(217,119,6,0.25)',
+                      color: '#d97706',
+                    }}
+                  >
+                    <Lightbulb className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Hint </span>
+                    <span style={{ color: '#b45309' }}>(-{selectedModule.hintCost})</span>
+                  </button>
                 </div>
               </>
             ) : (

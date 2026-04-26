@@ -7,6 +7,7 @@ export interface TrainingModule {
   techStack: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   points: number;
+  hintCost: number;
 }
 
 export interface Bounty {
