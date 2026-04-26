@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield } from 'lucide-react';
+import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield, CheckCircle2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { bounties, generateTerminalLines } from '@/data/mockData';
 import { Bounty, TerminalLine } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
+import { useUser } from '@/context/UserContext';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
@@ -29,20 +30,34 @@ const lineColors: Record<TerminalLine['type'], string> = {
 
 export default function ArenaView() {
   const { theme } = useTheme();
+  const { user } = useUser();
   const [selectedBounty, setSelectedBounty] = useState<Bounty | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
+  const [code, setCode] = useState('');
+  const [pointsEarned, setPointsEarned] = useState(0);
+  const [viewMode, setViewMode] = useState<'solution' | 'original'>('solution');
 
   const startChallenge = useCallback((bounty: Bounty) => {
     setSelectedBounty(bounty);
     setTimeRemaining(bounty.timeLimit);
-    setTerminalLines(generateTerminalLines(bounty.techStack));
     setShowFailure(false);
     setShowSuccess(false);
-  }, []);
+
+    const savedSolution = user?.solutions?.[bounty.id];
+    if (savedSolution) {
+      setCode(savedSolution);
+      setViewMode('solution');
+      setTerminalLines([{ id: '1', type: 'info', message: 'Loaded previously successful fix.', timestamp: new Date().toISOString() }]);
+    } else {
+      setCode(`// ${bounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`);
+      setViewMode('original');
+      setTerminalLines(generateTerminalLines(bounty.techStack));
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!selectedBounty || timeRemaining <= 0) return;
@@ -55,13 +70,52 @@ export default function ArenaView() {
     return () => clearInterval(id);
   }, [selectedBounty, timeRemaining]);
 
-  const handleDeployFix = () => {
+  const handleDeployFix = async () => {
+    if (!selectedBounty) return;
+    if (!user) {
+      setTerminalLines(prev => [...prev, { id: Date.now().toString(), type: 'error', message: 'You must be signed in to deploy fixes.', timestamp: new Date().toISOString() }]);
+      return;
+    }
+
     setIsRunning(true);
-    setTimeout(() => {
+    setTerminalLines(prev => [...prev, { id: Date.now().toString(), type: 'info', message: 'Deploying fix to production...', timestamp: new Date().toISOString() }]);
+
+    try {
+      const res = await fetch('/api/arena', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          bountyId: selectedBounty.id,
+          submittedCode: code,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setTerminalLines(prev => [...prev, { id: Date.now().toString(), type: 'error', message: data?.error ?? `Deployment failed (${res.status})`, timestamp: new Date().toISOString() }]);
+        setIsRunning(false);
+        return;
+      }
+
+      const grading = data.grading;
+      setTerminalLines(prev => [
+        ...prev,
+        { id: Date.now().toString(), type: grading.success ? 'success' : 'error', message: grading.feedback, timestamp: new Date().toISOString() },
+        ...(grading.bugIdentified ? [{ id: (Date.now()+1).toString(), type: 'info' as const, message: `Bug identified: ${grading.bugIdentified}`, timestamp: new Date().toISOString() }] : []),
+      ]);
+
+      if (grading.success) {
+        setPointsEarned(data.pointsAwarded || 0);
+        setShowSuccess(true);
+      } else {
+        setShowFailure(true);
+      }
+    } catch (err) {
+      setTerminalLines(prev => [...prev, { id: Date.now().toString(), type: 'error', message: err instanceof Error ? err.message : 'Network error', timestamp: new Date().toISOString() }]);
+    } finally {
       setIsRunning(false);
-      if (Math.random() > 0.3) setShowSuccess(true);
-      else setShowFailure(true);
-    }, 2000);
+    }
   };
 
   const handleClose = () => { setSelectedBounty(null); setShowFailure(false); setShowSuccess(false); };
@@ -91,8 +145,29 @@ export default function ArenaView() {
                   <p className="text-xs font-mono truncate" style={{ color: 'var(--text-3)' }}>{selectedBounty.repo}</p>
                 </div>
               </div>
+
+              {user?.solutions?.[selectedBounty.id] && (
+                <div className="hidden sm:flex bg-black/20 p-0.5 rounded-md border mx-auto" style={{ borderColor: 'var(--border)' }}>
+                  <button
+                    onClick={() => { setViewMode('solution'); setCode(user.solutions![selectedBounty.id]) }}
+                    className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'solution' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+                  >
+                    Your Solution
+                  </button>
+                  <button
+                    onClick={() => { 
+                      setViewMode('original'); 
+                      setCode(`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`);
+                    }}
+                    className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'original' ? 'bg-red-500/20 text-red-400 shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+                  >
+                    Original Buggy Code
+                  </button>
+                </div>
+              )}
+
               <div
-                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-2"
+                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-auto"
                 style={
                   isUrgent
                     ? { background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)' }
@@ -131,7 +206,8 @@ export default function ArenaView() {
                     height="100%"
                     language="typescript"
                     theme={theme === 'dark' ? 'vs-dark' : 'vs'}
-                    value={`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
+                    value={code}
+                    onChange={(v) => setCode(v ?? '')}
                     options={{
                       minimap: { enabled: false },
                       fontSize: 13,
@@ -207,6 +283,9 @@ export default function ArenaView() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 sm:gap-3 mb-1.5">
                         <h3 className="font-semibold text-sm sm:text-base" style={{ color: 'var(--text)' }}>{bounty.title}</h3>
+                        {user?.badges?.includes(bounty.id) && (
+                          <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--green)' }} />
+                        )}
                         <span className="text-xs font-mono hidden sm:block" style={{ color: 'var(--text-3)' }}>{bounty.techStack}</span>
                       </div>
                       <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
@@ -257,7 +336,7 @@ export default function ArenaView() {
               <h2 className="text-lg sm:text-xl font-bold mb-1" style={{ color: 'var(--text)' }}>Badge Earned</h2>
               <p className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>{selectedBounty?.title}</p>
               <div className="rounded-xl p-4 mb-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{selectedBounty?.reward}</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{pointsEarned}</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Pehchaan Trust Score</p>
               </div>
               <button onClick={handleClose} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: '#16a34a' }}>

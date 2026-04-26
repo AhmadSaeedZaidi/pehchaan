@@ -574,9 +574,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
               <GithubIcon className="w-4 h-4" />
             </a>
             <a
-              href="https://twitter.com/pehchaan"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#"
               className="p-2.5 rounded-full transition-colors hover:scale-110"
               style={{ background: 'var(--bg-secondary)', color: 'var(--text-2)' }}
               title="X (Twitter)"

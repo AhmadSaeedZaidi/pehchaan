@@ -21,6 +21,7 @@ export interface AuthUser {
     security?: number;
   };
   profileSummary: string | null;
+  solutions?: Record<string, string>;
 }
 
 interface UserContextValue {
