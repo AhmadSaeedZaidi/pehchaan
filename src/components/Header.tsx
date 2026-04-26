@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, ChevronDown, Zap, Sun, Moon, Menu, X, LogOut } from 'lucide-react';
+import { User, ChevronDown, Zap, Sun, Moon, Menu, X, LogOut, Star } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useUser } from '@/context/UserContext';
 
@@ -29,46 +29,49 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 border-b backdrop-blur"
-      style={{ background: 'color-mix(in srgb, var(--bg) 92%, transparent)', borderColor: 'var(--border)' }}
+      className="fixed top-0 left-0 right-0 z-50 backdrop-blur"
+      style={{ background: 'color-mix(in srgb, var(--bg) 95%, transparent)', borderBottom: '1px solid var(--border)' }}
     >
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between">
+      <div className="max-w-[1800px] mx-auto px-5 sm:px-8 h-[64px] flex items-center justify-between">
         {/* Logo */}
         <button
           onClick={onLogoClick}
-          className="flex items-center gap-2 flex-shrink-0 transition-opacity hover:opacity-80"
+          className="flex items-center gap-2.5 flex-shrink-0 transition-opacity hover:opacity-75"
         >
           <img
             src="/pehchaan_logo.png"
             alt="Pehchaan logo"
-            className="h-8 w-8 object-contain"
+            className="h-9 w-9 object-contain"
           />
-          <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+          <span 
+            className="text-sm font-medium tracking-tight"
+            style={{ color: 'var(--text)', fontFamily: 'Jost, sans-serif', letterSpacing: '0.02em' }}
+          >
             Pehchaan
           </span>
         </button>
 
         {/* Desktop nav */}
-        <div className="hidden sm:flex items-center gap-1.5">
+        <div className="hidden sm:flex items-center gap-3">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg transition-colors"
-            style={{ color: 'var(--text-3)' }}
+            className="p-2.5 rounded-full transition-colors"
+            style={{ color: 'var(--text-3)', background: 'transparent' }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-secondary)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
             title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
-            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            {theme === 'light' ? <Moon className="w-4 h-4" strokeWidth={1.5} /> : <Sun className="w-4 h-4" strokeWidth={1.5} />}
           </button>
 
           {isLoggedIn ? (
             <>
               <div
-                className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg"
+                className="flex items-center gap-2 text-sm px-4 py-2 rounded-full"
                 style={{ background: 'var(--bg-secondary)', color: 'var(--text-2)' }}
               >
-                <Zap className="w-3.5 h-3.5" style={{ color: 'var(--green)' }} />
-                <span className="font-bold" style={{ color: 'var(--text)' }}>
+                <Zap className="w-3.5 h-3.5" style={{ color: 'var(--green-accent)' }} strokeWidth={1.5} />
+                <span className="font-semibold" style={{ color: 'var(--text)' }}>
                   {user!.ptsScore.toLocaleString()}
                 </span>
                 <span className="text-xs" style={{ color: 'var(--text-3)' }}>PTS</span>
@@ -77,7 +80,7 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
               <div className="relative">
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="flex items-center gap-1.5 p-1 rounded-lg transition-colors"
+                  className="flex items-center gap-2 p-1.5 rounded-full transition-colors"
                   onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-secondary)')}
                   onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
@@ -85,19 +88,21 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                     <img
                       src={user!.avatarUrl}
                       alt={displayName}
-                      className="w-7 h-7 rounded-full object-cover"
+                      className="w-8 h-8 rounded-full object-cover border-2"
+                      style={{ borderColor: 'var(--border)' }}
                     />
                   ) : (
                     <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center"
-                      style={{ background: 'var(--cyan)' }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      style={{ background: 'var(--pink)' }}
                     >
-                      <span className="text-xs font-bold text-white">{initials}</span>
+                      <span className="text-xs font-semibold" style={{ color: 'var(--beige)' }}>{initials}</span>
                     </div>
                   )}
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
                     style={{ color: 'var(--text-3)' }}
+                    strokeWidth={1.5}
                   />
                 </button>
 
@@ -105,10 +110,10 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
                     <div
-                      className="absolute right-0 top-full mt-1.5 w-56 rounded-xl overflow-hidden shadow-xl border z-20"
+                      className="absolute right-0 top-full mt-2 w-60 rounded-2xl overflow-hidden border z-20"
                       style={{ background: 'var(--bg)', borderColor: 'var(--border-strong)' }}
                     >
-                      <div className="px-4 py-3 border-b" style={{ borderColor: 'var(--border)' }}>
+                      <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
                         <p className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
                           {displayName}
                         </p>
@@ -121,12 +126,12 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                           onProfileClick();
                           setShowDropdown(false);
                         }}
-                        className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 transition-colors"
+                        className="w-full px-5 py-3 text-left text-sm flex items-center gap-2.5 transition-colors"
                         style={{ color: 'var(--text-2)' }}
                         onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-secondary)')}
                         onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       >
-                        <User className="w-3.5 h-3.5" />
+                        <User className="w-4 h-4" strokeWidth={1.5} />
                         View Profile
                       </button>
                       <button
@@ -134,14 +139,14 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                           logout();
                           setShowDropdown(false);
                         }}
-                        className="w-full px-4 py-2.5 text-left text-sm flex items-center gap-2 transition-colors border-t"
-                        style={{ color: '#dc2626', borderColor: 'var(--border)' }}
+                        className="w-full px-5 py-3 text-left text-sm flex items-center gap-2.5 transition-colors border-t"
+                        style={{ color: '#b54a4a', borderColor: 'var(--border)' }}
                         onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = 'rgba(239,68,68,0.06)')
+                          (e.currentTarget.style.background = 'rgba(181, 74, 74, 0.06)')
                         }
                         onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       >
-                        <LogOut className="w-3.5 h-3.5" />
+                        <LogOut className="w-4 h-4" strokeWidth={1.5} />
                         Sign out
                       </button>
                     </div>
@@ -152,26 +157,26 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
           ) : (
             <button
               onClick={onLoginClick}
-              className="px-4 py-1.5 text-sm font-semibold rounded-lg transition-colors text-white"
-              style={{ background: 'var(--cyan)' }}
+              className="btn-pill btn-pill-primary"
             >
+              <Star className="w-3.5 h-3.5" strokeWidth={1.5} />
               Sign in
             </button>
           )}
         </div>
 
         {/* Mobile */}
-        <div className="sm:hidden flex items-center gap-1">
+        <div className="sm:hidden flex items-center gap-2">
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg"
+            className="p-2 rounded-full"
             style={{ color: 'var(--text-3)' }}
           >
-            {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            {theme === 'light' ? <Moon className="w-4 h-4" strokeWidth={1.5} /> : <Sun className="w-4 h-4" strokeWidth={1.5} />}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg"
+            className="p-2 rounded-full"
             style={{ color: 'var(--text-2)' }}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -181,24 +186,25 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
 
       {mobileMenuOpen && (
         <div
-          className="sm:hidden border-t px-4 py-3 space-y-2"
+          className="sm:hidden border-t px-5 py-4 space-y-3"
           style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
         >
           {isLoggedIn ? (
             <>
-              <div className="flex items-center gap-2 py-2">
+              <div className="flex items-center gap-3 py-3">
                 {user!.avatarUrl ? (
                   <img
                     src={user!.avatarUrl}
                     alt={displayName}
-                    className="w-9 h-9 rounded-full object-cover"
+                    className="w-10 h-10 rounded-full object-cover border-2"
+                    style={{ borderColor: 'var(--border)' }}
                   />
                 ) : (
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center"
-                    style={{ background: 'var(--cyan)' }}
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ background: 'var(--pink)' }}
                   >
-                    <span className="text-xs font-bold text-white">{initials}</span>
+                    <span className="text-sm font-semibold" style={{ color: 'var(--beige)' }}>{initials}</span>
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -215,7 +221,7 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                   onProfileClick();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+                className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors"
                 style={{ background: 'var(--bg-secondary)', color: 'var(--text-2)' }}
               >
                 View Profile
@@ -225,10 +231,10 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                   logout();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                style={{ background: 'rgba(239,68,68,0.06)', color: '#dc2626' }}
+                className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2"
+                style={{ background: 'rgba(181, 74, 74, 0.06)', color: '#b54a4a' }}
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <LogOut className="w-4 h-4" strokeWidth={1.5} />
                 Sign out
               </button>
             </>
@@ -238,8 +244,8 @@ export default function Header({ onLoginClick, onProfileClick, onLogoClick }: He
                 onLoginClick();
                 setMobileMenuOpen(false);
               }}
-              className="w-full py-2.5 text-sm font-semibold rounded-lg text-white"
-              style={{ background: 'var(--cyan)' }}
+              className="w-full py-3 text-sm font-medium rounded-full text-center"
+              style={{ background: 'var(--slate)', color: 'var(--beige)' }}
             >
               Sign in with GitHub
             </button>

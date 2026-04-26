@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield, CheckCircle2 } from 'lucide-react';
+import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { bounties, generateTerminalLines } from '@/data/mockData';
 import { Bounty, TerminalLine } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
-import { useUser } from '@/context/UserContext';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
-
-const getInitialCode = (title: string) => `// ${title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`;
 
 function formatTime(s: number) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -32,34 +29,20 @@ const lineColors: Record<TerminalLine['type'], string> = {
 
 export default function ArenaView() {
   const { theme } = useTheme();
-  const { user, updateUser } = useUser();
   const [selectedBounty, setSelectedBounty] = useState<Bounty | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
-  const [code, setCode] = useState('');
-  const [pointsEarned, setPointsEarned] = useState(0);
-  const [viewMode, setViewMode] = useState<'solution' | 'original'>('solution');
 
   const startChallenge = useCallback((bounty: Bounty) => {
     setSelectedBounty(bounty);
     setTimeRemaining(bounty.timeLimit);
+    setTerminalLines(generateTerminalLines(bounty.techStack));
     setShowFailure(false);
     setShowSuccess(false);
-
-    const savedSolution = user?.solutions?.[bounty.id];
-    if (savedSolution) {
-      setCode(savedSolution);
-      setViewMode('solution');
-      setTerminalLines([{ id: '1', type: 'info', message: 'Loaded previously successful fix.', timestamp: new Date().toISOString() }]);
-    } else {
-      setCode(getInitialCode(bounty.title));
-      setViewMode('original');
-      setTerminalLines(generateTerminalLines(bounty.techStack));
-    }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (!selectedBounty || timeRemaining <= 0) return;
@@ -72,48 +55,13 @@ export default function ArenaView() {
     return () => clearInterval(id);
   }, [selectedBounty, timeRemaining]);
 
-  const handleDeployFix = async () => {
-    if (!selectedBounty) return;
-    if (!user) {
-      alert("Please login first to submit Arena bounties.");
-      return;
-    }
-
+  const handleDeployFix = () => {
     setIsRunning(true);
-    setShowFailure(false);
-    setShowSuccess(false);
-
-    try {
-      const res = await fetch('/api/arena', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: user.id,
-          bountyId: selectedBounty.id,
-          submittedCode: code,
-        }),
-      });
-
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || 'Submission failed');
-      }
-
-      if (data.updatedUser) updateUser(data.updatedUser);
-
-      if (data.grading?.success) {
-        setPointsEarned(data.pointsAwarded || 0);
-        setShowSuccess(true);
-      } else {
-        setShowFailure(true);
-      }
-    } catch (err: any) {
-      console.error("Deploy err", err);
-      setShowFailure(true);
-    } finally {
+    setTimeout(() => {
       setIsRunning(false);
-    }
+      if (Math.random() > 0.3) setShowSuccess(true);
+      else setShowFailure(true);
+    }, 2000);
   };
 
   const handleClose = () => { setSelectedBounty(null); setShowFailure(false); setShowSuccess(false); };
@@ -143,26 +91,8 @@ export default function ArenaView() {
                   <p className="text-xs font-mono truncate" style={{ color: 'var(--text-3)' }}>{selectedBounty.repo}</p>
                 </div>
               </div>
-              
-              {user?.solutions?.[selectedBounty.id] && (
-                <div className="hidden sm:flex bg-black/20 p-0.5 rounded-md border mx-auto" style={{ borderColor: 'var(--border)' }}>
-                  <button
-                    onClick={() => { setViewMode('solution'); setCode(user.solutions![selectedBounty.id]) }}
-                    className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'solution' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
-                  >
-                    Your Solution
-                  </button>
-                  <button
-                    onClick={() => { setViewMode('original'); setCode(getInitialCode(selectedBounty.title)) }}
-                    className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'original' ? 'bg-red-500/20 text-red-400 shadow-sm' : 'text-white/40 hover:text-white/70'}`}
-                  >
-                    Original Buggy Code
-                  </button>
-                </div>
-              )}
-
               <div
-                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-auto"
+                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-2"
                 style={
                   isUrgent
                     ? { background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)' }
@@ -194,30 +124,27 @@ export default function ArenaView() {
                   <div className="px-2 py-1" style={{ color: 'var(--text-3)' }}>package.json</div>
                 </div>
               </div>
-                {/* Editor Area */}
-                <div className="flex-1 flex flex-col min-w-0 min-h-0">
-                  {/* Editor */}
-                  <div className="flex-1 min-w-0 min-h-0">
-                    <MonacoEditor
-                      height="100%"
-                      language="typescript"
-                      theme={theme === 'dark' ? 'vs-dark' : 'vs'}
-                      value={code}
-                      onChange={(v) => setCode(v ?? '')}
-                      options={{
-                        minimap: { enabled: false },
-                        fontSize: 13,
-                        lineNumbers: 'on',
-                        scrollBeyondLastLine: false,
-                        automaticLayout: true,
-                        padding: { top: 12 },
-                        fontFamily: "'JetBrains Mono', monospace",
-                        renderLineHighlight: 'none',
-                        occurrencesHighlight: 'off',
-                        selectionHighlight: false,
-                      }}
-                    />
-                  </div>
+
+                {/* Editor */}
+                <div className="flex-1 min-w-0 min-h-0" style={{ minHeight: '200px' }}>
+                  <MonacoEditor
+                    height="100%"
+                    language="typescript"
+                    theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+                    value={`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 13,
+                      lineNumbers: 'on',
+                      scrollBeyondLastLine: false,
+                      automaticLayout: true,
+                      padding: { top: 12 },
+                      fontFamily: "'JetBrains Mono', monospace",
+                      renderLineHighlight: 'none',
+                      occurrencesHighlight: 'off',
+                      selectionHighlight: false,
+                    }}
+                  />
                 </div>
             </div>
 
@@ -280,9 +207,6 @@ export default function ArenaView() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 sm:gap-3 mb-1.5">
                         <h3 className="font-semibold text-sm sm:text-base" style={{ color: 'var(--text)' }}>{bounty.title}</h3>
-                        {user?.badges?.includes(bounty.id) && (
-                          <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--green)' }} />
-                        )}
                         <span className="text-xs font-mono hidden sm:block" style={{ color: 'var(--text-3)' }}>{bounty.techStack}</span>
                       </div>
                       <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
@@ -333,7 +257,7 @@ export default function ArenaView() {
               <h2 className="text-lg sm:text-xl font-bold mb-1" style={{ color: 'var(--text)' }}>Badge Earned</h2>
               <p className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>{selectedBounty?.title}</p>
               <div className="rounded-xl p-4 mb-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{pointsEarned}</p>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{selectedBounty?.reward}</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Pehchaan Trust Score</p>
               </div>
               <button onClick={handleClose} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: '#16a34a' }}>

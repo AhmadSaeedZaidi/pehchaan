@@ -1,28 +1,28 @@
 'use client';
 
 import React from 'react';
-import { Calendar, ExternalLink, RefreshCw, Sparkles, Trophy, Award, AlertCircle } from 'lucide-react';
+import { Calendar, ExternalLink, RefreshCw, Sparkles, Trophy, Award, AlertCircle, Star, Circle } from 'lucide-react';
 import GithubIcon from '@/components/icons/GithubIcon';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { useUser } from '@/context/UserContext';
 import { useTheme } from '@/context/ThemeContext';
 
 const langBadgeStyles: Record<string, { bg: string; color: string }> = {
-  TypeScript: { bg: 'rgba(79,70,229,0.12)', color: '#4f46e5' },
-  JavaScript: { bg: 'rgba(217,119,6,0.12)', color: '#d97706' },
-  Python:     { bg: 'rgba(217,119,6,0.12)', color: '#d97706' },
-  Go:         { bg: 'rgba(13,148,136,0.12)', color: '#0d9488' },
-  Rust:       { bg: 'rgba(234,88,12,0.12)', color: '#ea580c' },
-  Java:       { bg: 'rgba(220,38,38,0.12)', color: '#dc2626' },
-  Ruby:       { bg: 'rgba(220,38,38,0.12)', color: '#dc2626' },
-  Swift:      { bg: 'rgba(234,88,12,0.12)', color: '#ea580c' },
-  Kotlin:     { bg: 'rgba(124,58,237,0.12)', color: '#7c3aed' },
-  C:          { bg: 'rgba(75,85,99,0.12)',   color: '#4b5563' },
-  'C++':      { bg: 'rgba(37,99,235,0.12)',  color: '#2563eb' },
-  HTML:       { bg: 'rgba(234,88,12,0.12)',  color: '#ea580c' },
-  CSS:        { bg: 'rgba(37,99,235,0.12)',  color: '#2563eb' },
-  Shell:      { bg: 'rgba(22,163,74,0.12)',  color: '#16a34a' },
-  Dockerfile: { bg: 'rgba(37,99,235,0.12)',  color: '#2563eb' },
+  TypeScript: { bg: 'rgba(208,158,155,0.15)', color: '#d09e9b' },
+  JavaScript: { bg: 'rgba(165,188,148,0.15)', color: '#a5bc94' },
+  Python:     { bg: 'rgba(165,188,148,0.15)', color: '#a5bc94' },
+  Go:         { bg: 'rgba(208,158,155,0.15)', color: '#d09e9b' },
+  Rust:       { bg: 'rgba(208,158,155,0.15)', color: '#d09e9b' },
+  Java:       { bg: 'rgba(60,65,92,0.12)', color: '#3C415C' },
+  Ruby:       { bg: 'rgba(60,65,92,0.12)', color: '#3C415C' },
+  Swift:      { bg: 'rgba(208,158,155,0.15)', color: '#d09e9b' },
+  Kotlin:     { bg: 'rgba(165,188,148,0.15)', color: '#a5bc94' },
+  C:          { bg: 'rgba(60,65,92,0.12)',   color: '#3C415C' },
+  'C++':      { bg: 'rgba(208,158,155,0.15)', color: '#d09e9b' },
+  HTML:       { bg: 'rgba(208,158,155,0.15)', color: '#d09e9b' },
+  CSS:        { bg: 'rgba(165,188,148,0.15)', color: '#a5bc94' },
+  Shell:      { bg: 'rgba(165,188,148,0.15)', color: '#a5bc94' },
+  Dockerfile: { bg: 'rgba(165,188,148,0.15)', color: '#a5bc94' },
 };
 
 function langStyle(lang: string) {
@@ -42,7 +42,7 @@ export default function ProfileView() {
     return (
       <div className="pt-20 sm:pt-24 px-6 min-h-screen" style={{ background: 'var(--bg)' }}>
         <div className="max-w-md mx-auto rounded-2xl border p-8 text-center" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-          <AlertCircle className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--text-3)' }} />
+          <AlertCircle className="w-8 h-8 mx-auto mb-3" style={{ color: 'var(--text-3)' }} strokeWidth={1.5} />
           <h2 className="text-base font-semibold mb-1" style={{ color: 'var(--text)' }}>Sign in required</h2>
           <p className="text-sm" style={{ color: 'var(--text-3)' }}>Sign in with GitHub from the header to view your profile.</p>
         </div>
@@ -59,56 +59,62 @@ export default function ProfileView() {
     { subject: 'Security', value: skill.security ?? 50 },
   ];
 
-  const gridColor = theme === 'dark' ? '#2a2a2a' : '#e5e5e5';
-  const tickColor = theme === 'dark' ? '#888' : '#777';
+  const gridColor = theme === 'dark' ? 'rgba(226,213,211,0.1)' : 'rgba(60,65,92,0.1)';
+  const tickColor = theme === 'dark' ? '#8A8377' : '#6B7280';
   const initials = initialsOf(user.displayName, user.githubUsername);
   const accountAge = user.badges.length > 0 ? `${user.badges.length} verified ${user.badges.length === 1 ? 'badge' : 'badges'}` : 'No badges yet';
 
   return (
     <div className="pt-16 sm:pt-20 pb-12 min-h-screen" style={{ background: 'var(--bg)' }}>
-      <div className="max-w-[1300px] mx-auto px-3 sm:px-6">
+      <div className="max-w-[1300px] mx-auto px-4 sm:px-6">
+        {/* Organic blob decoration */}
+        <div className="absolute top-40 right-0 w-64 h-64 opacity-5 pointer-events-none">
+          <svg viewBox="0 0 200 200" style={{ fill: '#d09e9b' }}>
+            <path d="M150,-10C180,40,190,100,150,150C110,200,50,200,10,150C-30,100,-40,40,-10,-10C20,-60,120,-60,150,-10Z" />
+          </svg>
+        </div>
 
-        {/* Profile header — NeetCode-style banner */}
+        {/* Profile header */}
         <div
-          className="rounded-2xl border overflow-hidden mb-5 sm:mb-6"
+          className="rounded-3xl border overflow-hidden mb-6"
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
         >
-          {/* Subtle gradient strip */}
-          <div className="h-2" style={{ background: 'linear-gradient(90deg, var(--cyan), var(--green))' }} />
+          {/* Subtle gradient strip with organic feel */}
+          <div className="h-1.5" style={{ background: 'linear-gradient(90deg, var(--pink), var(--green-accent))' }} />
 
-          <div className="p-5 sm:p-7">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-6">
+          <div className="p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
               {user.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
                   alt={user.displayName ?? user.githubUsername}
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover flex-shrink-0 border-2"
-                  style={{ borderColor: 'var(--border-strong)' }}
+                  style={{ borderColor: 'var(--border)' }}
                 />
               ) : (
                 <div
                   className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'var(--cyan)' }}
+                  style={{ background: 'var(--pink)' }}
                 >
-                  <span className="text-2xl sm:text-3xl font-bold text-white">{initials}</span>
+                  <span className="text-2xl sm:text-3xl font-semibold" style={{ color: 'var(--beige)' }}>{initials}</span>
                 </div>
               )}
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                  <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--text)' }}>
+                <div className="flex items-center gap-2 flex-wrap mb-2">
+                  <h1 className="text-xl sm:text-2xl font-semibold" style={{ color: 'var(--text)', letterSpacing: '-0.01em' }}>
                     {user.displayName ?? user.githubUsername}
                   </h1>
                   {user.status === 'Verified Dev' && (
                     <span
-                      className="inline-flex items-center gap-1 px-2 py-0.5 text-xs rounded-full font-semibold border"
+                      className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full font-medium border"
                       style={{
-                        color: 'var(--cyan)',
-                        background: 'rgba(0,180,216,0.1)',
-                        borderColor: 'rgba(0,180,216,0.25)',
+                        color: 'var(--pink)',
+                        background: 'rgba(219,163,158,0.1)',
+                        borderColor: 'rgba(219,163,158,0.25)',
                       }}
                     >
-                      <Sparkles className="w-3 h-3" />
+                      <Star className="w-3 h-3 celestial-icon" />
                       Verified
                     </span>
                   )}
@@ -118,30 +124,30 @@ export default function ProfileView() {
                   href={user.githubUrl ?? `https://github.com/${user.githubUsername}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-sm hover:underline mb-2"
+                  className="inline-flex items-center gap-1.5 text-sm hover:underline mb-3"
                   style={{ color: 'var(--text-3)' }}
                 >
-                  <GithubIcon className="w-3.5 h-3.5" />
+                  <GithubIcon className="w-4 h-4" />
                   @{user.githubUsername}
-                  <ExternalLink className="w-3 h-3 opacity-60" />
+                  <ExternalLink className="w-3 h-3 opacity-60" strokeWidth={1.5} />
                 </a>
 
                 {user.bio && (
-                  <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-2)' }}>
+                  <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-2)', lineHeight: '1.6' }}>
                     {user.bio}
                   </p>
                 )}
 
                 {user.profileSummary && (
                   <div
-                    className="text-sm leading-relaxed p-3 rounded-lg border-l-2 italic"
+                    className="text-sm leading-relaxed p-4 rounded-xl border-l-2"
                     style={{
                       background: 'var(--bg)',
-                      borderColor: 'var(--cyan)',
+                      borderColor: 'var(--pink)',
                       color: 'var(--text-2)',
                     }}
                   >
-                    <span className="not-italic font-mono text-[10px] uppercase tracking-widest mr-2" style={{ color: 'var(--cyan)' }}>
+                    <span className="not-italic text-[10px] uppercase tracking-widest font-medium mr-2" style={{ color: 'var(--pink)', letterSpacing: '0.15em' }}>
                       AI Analysis
                     </span>
                     {user.profileSummary}
@@ -149,26 +155,21 @@ export default function ProfileView() {
                 )}
               </div>
 
-              <div className="flex sm:flex-col items-end gap-3 flex-shrink-0">
+              <div className="flex sm:flex-col items-end gap-4 flex-shrink-0">
                 <div className="text-right">
-                  <div className="text-3xl sm:text-4xl font-bold tabular-nums" style={{ color: 'var(--text)' }}>
+                  <div className="text-3xl sm:text-4xl font-semibold tabular-nums" style={{ color: 'var(--text)' }}>
                     {user.ptsScore.toLocaleString()}
                   </div>
-                  <div className="text-[10px] sm:text-xs uppercase tracking-widest font-mono mt-0.5" style={{ color: 'var(--text-3)' }}>
+                  <div className="text-[10px] uppercase tracking-widest font-medium mt-1" style={{ color: 'var(--text-3)', letterSpacing: '0.1em' }}>
                     Trust Score
                   </div>
                 </div>
                 <button
                   onClick={refresh}
                   disabled={loading}
-                  className="text-xs px-2.5 py-1.5 rounded-lg border flex items-center gap-1.5 transition-colors"
-                  style={{
-                    color: 'var(--text-3)',
-                    borderColor: 'var(--border)',
-                    background: 'var(--bg)',
-                  }}
+                  className="btn-pill btn-pill-outline text-xs"
                 >
-                  <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} strokeWidth={1.5} />
                   Refresh
                 </button>
               </div>
@@ -176,8 +177,8 @@ export default function ProfileView() {
 
             {/* Languages strip */}
             {user.primaryLanguages.length > 0 && (
-              <div className="mt-5 pt-4 border-t flex items-center gap-2 flex-wrap" style={{ borderColor: 'var(--border)' }}>
-                <span className="text-[10px] uppercase tracking-widest font-mono" style={{ color: 'var(--text-3)' }}>
+              <div className="mt-6 pt-5 border-t flex items-center gap-2 flex-wrap" style={{ borderColor: 'var(--border)' }}>
+                <span className="text-[10px] uppercase tracking-widest font-medium" style={{ color: 'var(--text-3)', letterSpacing: '0.1em' }}>
                   Top languages
                 </span>
                 {user.primaryLanguages.map((lang) => {
@@ -185,7 +186,7 @@ export default function ProfileView() {
                   return (
                     <span
                       key={lang}
-                      className="text-xs px-2 py-0.5 rounded-md font-medium"
+                      className="text-xs px-2.5 py-1 rounded-full font-medium"
                       style={{ background: s.bg, color: s.color }}
                     >
                       {lang}
@@ -197,22 +198,22 @@ export default function ProfileView() {
           </div>
         </div>
 
-        {/* Stats grid — NeetCode style */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
-          <StatCard label="Trust Score" value={user.ptsScore.toLocaleString()} accent="var(--cyan)" />
-          <StatCard label="Badges" value={user.badges.length.toString()} accent="var(--green)" />
-          <StatCard label="Status" value={user.status} accent="#d97706" small />
-          <StatCard label="Achievements" value={accountAge} accent="#a855f7" small />
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <StatCard label="Trust Score" value={user.ptsScore.toLocaleString()} accent="var(--pink)" />
+          <StatCard label="Badges" value={user.badges.length.toString()} accent="var(--green-accent)" />
+          <StatCard label="Status" value={user.status} accent="#8B7355" small />
+          <StatCard label="Achievements" value={accountAge} accent="#7c6f64" small />
         </div>
 
         {/* Two columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
           {/* Skills radar */}
-          <div className="lg:col-span-1 rounded-2xl border p-5 sm:p-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-            <div className="flex items-center justify-between mb-4 sm:mb-5">
+          <div className="lg:col-span-1 rounded-2xl border p-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+            <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Skill Estimates</h2>
-              <span className="text-[10px] uppercase tracking-widest font-mono" style={{ color: 'var(--cyan)' }}>AI</span>
+              <span className="text-[10px] uppercase tracking-widest font-medium" style={{ color: 'var(--pink)', letterSpacing: '0.1em' }}>AI</span>
             </div>
             <div className="h-[220px] sm:h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -223,15 +224,15 @@ export default function ProfileView() {
                   <Radar
                     name="Skills"
                     dataKey="value"
-                    stroke="var(--cyan)"
-                    fill="var(--cyan)"
+                    stroke="var(--pink)"
+                    fill="var(--pink)"
                     fillOpacity={0.18}
                     strokeWidth={1.8}
                   />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-3">
               {radarData.map((s) => (
                 <div key={s.subject}>
                   <div className="flex justify-between text-xs mb-1">
@@ -239,7 +240,7 @@ export default function ProfileView() {
                     <span className="font-medium tabular-nums" style={{ color: 'var(--text)' }}>{s.value}</span>
                   </div>
                   <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-tertiary)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${s.value}%`, background: 'var(--cyan)' }} />
+                    <div className="h-full rounded-full" style={{ width: `${s.value}%`, background: 'var(--pink)' }} />
                   </div>
                 </div>
               ))}
@@ -247,8 +248,8 @@ export default function ProfileView() {
           </div>
 
           {/* Trophy case */}
-          <div className="lg:col-span-2 rounded-2xl border p-5 sm:p-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-            <div className="flex items-center justify-between mb-4 sm:mb-5">
+          <div className="lg:col-span-2 rounded-2xl border p-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+            <div className="flex items-center justify-between mb-5">
               <h2 className="text-sm font-semibold" style={{ color: 'var(--text)' }}>Trophy Case</h2>
               <span className="text-xs" style={{ color: 'var(--text-3)' }}>{user.badges.length} earned</span>
             </div>
@@ -258,10 +259,10 @@ export default function ProfileView() {
                 className="rounded-xl border-2 border-dashed p-8 text-center"
                 style={{ borderColor: 'var(--border)' }}
               >
-                <Trophy className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-3)' }} />
+                <Trophy className="w-10 h-10 mx-auto mb-3" style={{ color: 'var(--text-3)' }} strokeWidth={1.5} />
                 <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>No badges yet</h3>
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--text-3)' }}>
-                  Solve a challenge in <span style={{ color: 'var(--cyan)' }}>The Arena</span> to earn your first badge.
+                  Solve a challenge in <span style={{ color: 'var(--pink)' }}>The Arena</span> to earn your first badge.
                 </p>
               </div>
             ) : (
@@ -269,20 +270,20 @@ export default function ProfileView() {
                 {user.badges.map((badgeId) => (
                   <div
                     key={badgeId}
-                    className="p-3 sm:p-4 rounded-xl border"
+                    className="p-4 rounded-xl border"
                     style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}
                   >
                     <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center mb-2.5"
-                      style={{ background: 'rgba(0,180,216,0.1)' }}
+                      className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                      style={{ background: 'rgba(219,163,158,0.15)' }}
                     >
-                      <Award className="w-4 h-4" style={{ color: 'var(--cyan)' }} />
+                      <Award className="w-5 h-5" style={{ color: 'var(--pink)' }} strokeWidth={1.5} />
                     </div>
-                    <h3 className="font-semibold text-sm mb-0.5 capitalize leading-snug" style={{ color: 'var(--text)' }}>
+                    <h3 className="font-medium text-sm mb-1 capitalize leading-snug" style={{ color: 'var(--text)' }}>
                       {badgeId.replace(/-/g, ' ')}
                     </h3>
-                    <div className="flex items-center gap-1 mt-2 text-[11px]" style={{ color: 'var(--text-3)' }}>
-                      <Calendar className="w-3 h-3" />
+                    <div className="flex items-center gap-1.5 mt-2 text-[11px]" style={{ color: 'var(--text-3)' }}>
+                      <Calendar className="w-3 h-3" strokeWidth={1.5} />
                       Recently earned
                     </div>
                   </div>
@@ -309,18 +310,18 @@ function StatCard({
 }) {
   return (
     <div
-      className="rounded-xl border p-3 sm:p-4"
+      className="rounded-2xl border p-4"
       style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
     >
       <div
-        className={`${small ? 'text-base' : 'text-2xl sm:text-3xl'} font-bold tabular-nums leading-tight`}
+        className={`${small ? 'text-base' : 'text-2xl sm:text-3xl'} font-semibold tabular-nums leading-tight`}
         style={{ color: accent }}
       >
         {value}
       </div>
       <div
-        className="text-[10px] sm:text-xs uppercase tracking-widest font-mono mt-1"
-        style={{ color: 'var(--text-3)' }}
+        className="text-[10px] uppercase tracking-widest font-medium mt-1"
+        style={{ color: 'var(--text-3)', letterSpacing: '0.1em' }}
       >
         {label}
       </div>
