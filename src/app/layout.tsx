@@ -17,7 +17,7 @@ export default function RootLayout({
         {/* Prevent flash of wrong theme */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var s=localStorage.getItem('pehchaan-theme');var d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(s==='dark'||(s===null&&d)){document.documentElement.classList.add('dark');}})();`,
+            __html: `(function(){if(localStorage.getItem('pehchaan-theme')==='dark'){document.documentElement.classList.add('dark');}})();`,
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
