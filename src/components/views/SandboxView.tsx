@@ -18,9 +18,9 @@ interface DifficultyConfig {
 }
 
 const difficultyConfig: Record<TrainingModule['difficulty'], DifficultyConfig> = {
-  beginner:     { label: 'Medium',   color: '#16a34a', bg: 'rgba(22,163,74,0.1)', border: 'rgba(22,163,74,0.25)' },
-  intermediate: { label: 'Hard', color: '#d97706', bg: 'rgba(217,119,6,0.1)', border: 'rgba(217,119,6,0.25)' },
-  advanced:     { label: 'Brutal',   color: '#dc2626', bg: 'rgba(220,38,38,0.1)', border: 'rgba(220,38,38,0.25)' },
+  beginner:     { label: 'Beginner',     color: '#10b981', bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)' },
+  intermediate: { label: 'Intermediate', color: '#3b82f6', bg: 'rgba(59,130,246,0.1)', border: 'rgba(59,130,246,0.25)' },
+  advanced:     { label: 'Advanced',     color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.25)' },
 };
 
 interface GradingResult {
@@ -40,10 +40,18 @@ export default function SandboxView() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [mobileListOpen, setMobileListOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'solution' | 'original'>('solution');
 
   const handleSelectModule = (module: TrainingModule) => {
     setSelectedModule(module);
-    setCode(brokenCodeSamples[module.id] ?? '// Select a challenge to begin');
+    const savedSolution = user?.solutions?.[module.id];
+    if (savedSolution) {
+      setCode(savedSolution);
+      setViewMode('solution');
+    } else {
+      setCode(brokenCodeSamples[module.id] || '// Select a challenge to begin');
+      setViewMode('original');
+    }
     setGrading(null);
     setSubmitError(null);
     setMobileListOpen(false);
@@ -194,6 +202,26 @@ export default function SandboxView() {
 
                   
                 </div>
+
+                {/* Editor Header */}
+                {user?.solutions?.[selectedModule.id] && (
+                  <div className="px-3 py-1.5 border-b flex justify-end" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
+                    <div className="flex bg-black/20 p-0.5 rounded-md border" style={{ borderColor: 'var(--border)' }}>
+                      <button
+                        onClick={() => { setViewMode('solution'); setCode(user.solutions![selectedModule.id]) }}
+                        className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'solution' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+                      >
+                        Your Solution
+                      </button>
+                      <button
+                        onClick={() => { setViewMode('original'); setCode(brokenCodeSamples[selectedModule.id] ?? '') }}
+                        className={`text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded transition-colors ${viewMode === 'original' ? 'bg-red-500/20 text-red-400 shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+                      >
+                        Original Buggy Code
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Editor */}
                 <div className="flex-1 min-h-0">

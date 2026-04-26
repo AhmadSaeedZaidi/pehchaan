@@ -32,7 +32,7 @@ const FloatingElements = () => {
     { top: '2%', left: '82%', opacity: 0.15, anim: 'fast', text: 'fn', color: 'green' },
     { top: '1%', left: '90%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'cyan' },
     { top: '0.5%', left: '96%', opacity: 0.14, anim: 'medium', icon: 'sparkles', color: 'green' },
-    
+
     // LEFT GUTTER (x: 0-30%, y: 5-95%) - 30% width gutter
     { top: '8%', left: '3%', opacity: 0.16, anim: 'slow', icon: 'code', color: 'cyan' },
     { top: '14%', left: '6%', opacity: 0.12, anim: 'fast', text: '</>', color: 'green' },
@@ -49,7 +49,7 @@ const FloatingElements = () => {
     { top: '80%', left: '3%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'cyan' },
     { top: '86%', left: '12%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'green' },
     { top: '92%', left: '6%', opacity: 0.14, anim: 'medium', text: '!!', color: 'cyan' },
-    
+
     // RIGHT GUTTER (x: 70-100%, y: 5-95%) - 30% width gutter
     { top: '8%', left: '94%', opacity: 0.16, anim: 'slow', icon: 'code', color: 'green' },
     { top: '14%', left: '91%', opacity: 0.12, anim: 'fast', text: '</>', color: 'cyan' },
@@ -66,7 +66,7 @@ const FloatingElements = () => {
     { top: '80%', left: '94%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'green' },
     { top: '86%', left: '85%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'cyan' },
     { top: '92%', left: '91%', opacity: 0.14, anim: 'medium', text: '//', color: 'green' },
-    
+
     // BOTTOM EDGE (y: 96-100%) - across the bottom
     { top: '97%', left: '2%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'cyan' },
     { top: '98%', left: '8%', opacity: 0.14, anim: 'medium', text: '{ }', color: 'green' },
@@ -82,7 +82,7 @@ const FloatingElements = () => {
     { top: '97%', left: '82%', opacity: 0.12, anim: 'fast', icon: 'code', color: 'green' },
     { top: '96%', left: '90%', opacity: 0.16, anim: 'slow', icon: 'sparkles', color: 'cyan' },
     { top: '99%', left: '96%', opacity: 0.14, anim: 'medium', text: '</>', color: 'green' },
-    
+
     // Dense: LEFT GUTTER row 2 (fills the 30% gutter better)
     { top: '11%', left: '4%', opacity: 0.10, anim: 'slow', text: '()', color: 'cyan' },
     { top: '17%', left: '7%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
@@ -98,7 +98,7 @@ const FloatingElements = () => {
     { top: '77%', left: '10%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'green' },
     { top: '83%', left: '4%', opacity: 0.10, anim: 'slow', text: '=>', color: 'cyan' },
     { top: '89%', left: '7%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
-    
+
     // Dense: RIGHT GUTTER row 2
     { top: '11%', left: '93%', opacity: 0.10, anim: 'slow', text: '()', color: 'green' },
     { top: '17%', left: '90%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
@@ -114,7 +114,7 @@ const FloatingElements = () => {
     { top: '77%', left: '87%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'cyan' },
     { top: '83%', left: '93%', opacity: 0.10, anim: 'slow', text: '=>', color: 'green' },
     { top: '89%', left: '90%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
-    
+
     // Top edge extra
     { top: '3%', left: '5%', opacity: 0.10, anim: 'fast', text: 'fn', color: 'cyan' },
     { top: '0%', left: '12%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'green' },
@@ -128,7 +128,7 @@ const FloatingElements = () => {
     { top: '0%', left: '72%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
     { top: '4%', left: '78%', opacity: 0.10, anim: 'slow', text: 'fn', color: 'cyan' },
     { top: '1%', left: '88%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'green' },
-    
+
     // Bottom edge extra
     { top: '99%', left: '5%', opacity: 0.10, anim: 'fast', text: 'fn', color: 'green' },
     { top: '96%', left: '12%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'cyan' },
@@ -142,7 +142,7 @@ const FloatingElements = () => {
     { top: '96%', left: '72%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
     { top: '99%', left: '78%', opacity: 0.10, anim: 'slow', text: 'fn', color: 'green' },
     { top: '97%', left: '88%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'cyan' },
-    
+
     // Corner clusters (more prominent now)
     { top: '2%', left: '1%', opacity: 0.20, anim: 'slow', icon: 'code', color: 'cyan' },
     { top: '4%', left: '2%', opacity: 0.18, anim: 'fast', text: '</>', color: 'green' },
@@ -156,7 +156,7 @@ const FloatingElements = () => {
     { top: '98%', left: '96%', opacity: 0.20, anim: 'slow', icon: 'code', color: 'green' },
     { top: '99%', left: '95%', opacity: 0.18, anim: 'fast', text: '</>', color: 'cyan' },
     { top: '96%', left: '93%', opacity: 0.16, anim: 'medium', icon: 'layers', color: 'green' },
-    
+
     // Extra elements for denser 30% gutters
     { top: '15%', left: '15%', opacity: 0.12, anim: 'slow', icon: 'code', color: 'cyan' },
     { top: '22%', left: '18%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'green' },
@@ -165,7 +165,7 @@ const FloatingElements = () => {
     { top: '55%', left: '15%', opacity: 0.12, anim: 'fast', text: '[]', color: 'cyan' },
     { top: '70%', left: '18%', opacity: 0.12, anim: 'medium', icon: 'code', color: 'green' },
     { top: '85%', left: '15%', opacity: 0.12, anim: 'slow', text: '=>', color: 'cyan' },
-    
+
     { top: '15%', left: '82%', opacity: 0.12, anim: 'slow', icon: 'code', color: 'green' },
     { top: '22%', left: '79%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'cyan' },
     { top: '30%', left: '82%', opacity: 0.12, anim: 'medium', text: '{ }', color: 'green' },
@@ -228,7 +228,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
         backgroundImage: `radial-gradient(circle, var(--text) 1px, transparent 1px)`,
         backgroundSize: '24px 24px'
       }} />
-      
+
       {/* Floating decorative elements - STRICTLY in gutters only */}
       <FloatingElements />
 
@@ -434,7 +434,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
               <span className="text-xs" style={{ color: 'var(--text-3)' }}>© 2026 · Pakistan & beyond</span>
             </div>
           </div>
-          
+
           {/* Social icons */}
           <div className="flex items-center gap-2">
             <a
@@ -448,7 +448,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
               <GithubIcon className="w-4 h-4" />
             </a>
             <a
-              href="https://twitter.com/pehchaan"
+              href="#"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-lg transition-colors hover:scale-110"
@@ -464,8 +464,8 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
               title="Contact"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
             </a>
           </div>
@@ -474,8 +474,8 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
           <div className="flex items-center gap-3">
             <span
               className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-semibold border"
-              style={{ 
-                borderColor: 'var(--border)', 
+              style={{
+                borderColor: 'var(--border)',
                 color: 'var(--text-3)',
                 background: 'var(--bg-secondary)',
                 boxShadow: '0 0 10px rgba(0,212,255,0.1)'
@@ -565,28 +565,28 @@ function PathCard({
         minHeight: '420px',
         opacity: isOtherHovered ? 0.7 : 1,
         transform: isHovered ? 'scale(1.03)' : 'scale(1)',
-        boxShadow: isHovered 
-          ? `0 0 40px ${accent}40, 0 20px 40px rgba(0,0,0,0.3)` 
+        boxShadow: isHovered
+          ? `0 0 40px ${accent}40, 0 20px 40px rgba(0,0,0,0.3)`
           : '0 0 0 transparent',
         transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
         zIndex: 10,
       }}
     >
       {/* Animated border glow */}
-      <div 
+      <div
         className="absolute inset-0 rounded-none transition-opacity duration-300"
         style={{
           opacity: isHovered ? 1 : 0,
           transition: 'opacity 0.3s ease',
         }}
       >
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: `linear-gradient(90deg, ${accent}, transparent, ${accent})`,
             backgroundSize: '200% 100%',
             animation: isHovered ? 'borderGlow 2s linear infinite' : 'none',
-          }} 
+          }}
         />
       </div>
 
@@ -619,9 +619,9 @@ function PathCard({
           <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
             <div
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border backdrop-blur-sm flex-shrink-0 transition-all duration-300"
-              style={{ 
-                background: isHovered ? accent : accentBgStrong, 
-                borderColor: isHovered ? 'transparent' : accentBorder, 
+              style={{
+                background: isHovered ? accent : accentBgStrong,
+                borderColor: isHovered ? 'transparent' : accentBorder,
                 color: isHovered ? 'var(--bg)' : accent,
                 transform: isHovered ? 'scale(1.1)' : 'scale(1)',
                 boxShadow: isHovered ? `0 0 20px ${accent}` : 'none',
@@ -642,9 +642,9 @@ function PathCard({
               <div key={i} className="flex items-center gap-3">
                 <span
                   className="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 transition-all duration-300"
-                  style={{ 
-                    background: isHovered ? accent : accentBgFaint, 
-                    border: `1px solid ${isHovered ? 'transparent' : accentBorder}`, 
+                  style={{
+                    background: isHovered ? accent : accentBgFaint,
+                    border: `1px solid ${isHovered ? 'transparent' : accentBorder}`,
                     color: isHovered ? 'var(--bg)' : accent,
                     transform: isHovered ? 'scale(1.1)' : 'scale(1)',
                   }}
@@ -661,20 +661,20 @@ function PathCard({
           <span className={isHovered ? 'tracking-wider' : ''} style={{ transition: 'letter-spacing 0.3s ease' }}>
             {ctaLabel}
           </span>
-          <div 
+          <div
             className="relative overflow-hidden"
             style={{ width: '24px', height: '24px' }}
           >
             <ChevronRight
               className="absolute w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300"
-              style={{ 
+              style={{
                 transform: isHovered ? 'translateX(0) rotate(0deg)' : 'translateX(-24px) rotate(-90deg)',
                 opacity: isHovered ? 1 : 0,
               }}
             />
             <ArrowRight
               className="absolute w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300"
-              style={{ 
+              style={{
                 transform: isHovered ? 'translateX(0) rotate(0deg)' : 'translateX(24px) rotate(90deg)',
                 opacity: isHovered ? 1 : 0,
               }}
