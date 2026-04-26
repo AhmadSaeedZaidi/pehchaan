@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { GraduationCap, Sword, ChevronRight, ArrowRight, CheckCircle2, Zap, Target, Sparkles, Code2, Layers } from 'lucide-react';
 import GithubIcon from '@/components/icons/GithubIcon';
 import TwitterIcon from '@/components/icons/TwitterIcon';
@@ -14,63 +14,208 @@ interface HomePageProps {
 const trainingSteps = ['Pick a skill', 'Find the bug', 'Fix it', 'Level up'];
 const arenaSteps = ['Pick a challenge', 'Race the clock', 'Earn your badge'];
 
-// Floating decorative elements
-const FloatingElements = () => (
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    {/* Top left decorative */}
-    <div className="absolute top-20 left-10 opacity-15 animate-float-slow">
-      <Code2 className="w-8 h-8" style={{ color: 'var(--cyan)' }} />
-    </div>
-    <div className="absolute top-32 left-24 opacity-10 animate-float-medium">
-      <div className="text-xs font-mono" style={{ color: 'var(--green)' }}>{'</>'}</div>
-    </div>
-    {/* Top right decorative */}
-    <div className="absolute top-16 right-16 opacity-15 animate-float-slow">
-      <Layers className="w-10 h-10" style={{ color: 'var(--green)' }} />
-    </div>
-    <div className="absolute top-40 right-28 opacity-10 animate-float-fast">
-      <div className="text-xs font-mono" style={{ color: 'var(--cyan)' }}>{'{ }'}</div>
-    </div>
-    {/* Bottom decorative */}
-    <div className="absolute bottom-40 left-20 opacity-10 animate-float-medium">
-      <Sparkles className="w-6 h-6" style={{ color: 'var(--cyan)' }} />
-    </div>
-    <div className="absolute bottom-32 right-24 opacity-12 animate-float-slow">
-      <div className="text-xs font-mono" style={{ color: 'var(--green)' }}>[]</div>
-    </div>
-    {/* Center glow effects */}
-    <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-64 h-64 rounded-full opacity-[0.03]" style={{ background: 'var(--cyan)', filter: 'blur(80px)' }} />
-    <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-64 h-64 rounded-full opacity-[0.03]" style={{ background: 'var(--green)', filter: 'blur(80px)' }} />
-  </div>
-);
+// Floating decorative elements - ONLY in gutters/borders, never overlapping content
+const FloatingElements = () => {
+  const elements = [
+    // TOP EDGE (y: 0-4%) - across the top
+    { top: '1%', left: '2%', opacity: 0.18, anim: 'slow', icon: 'code', color: 'cyan' },
+    { top: '0.5%', left: '8%', opacity: 0.15, anim: 'medium', text: '</>', color: 'green' },
+    { top: '2%', left: '15%', opacity: 0.16, anim: 'fast', icon: 'sparkles', color: 'cyan' },
+    { top: '1%', left: '22%', opacity: 0.14, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '0.5%', left: '30%', opacity: 0.18, anim: 'medium', text: '{ }', color: 'cyan' },
+    { top: '2%', left: '38%', opacity: 0.15, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '1%', left: '45%', opacity: 0.16, anim: 'slow', text: '[]', color: 'cyan' },
+    { top: '0.5%', left: '52%', opacity: 0.18, anim: 'medium', icon: 'layers', color: 'green' },
+    { top: '2%', left: '60%', opacity: 0.15, anim: 'fast', icon: 'sparkles', color: 'cyan' },
+    { top: '1%', left: '68%', opacity: 0.16, anim: 'slow', text: '=>', color: 'green' },
+    { top: '0.5%', left: '75%', opacity: 0.18, anim: 'medium', icon: 'code', color: 'cyan' },
+    { top: '2%', left: '82%', opacity: 0.15, anim: 'fast', text: 'fn', color: 'green' },
+    { top: '1%', left: '90%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '0.5%', left: '96%', opacity: 0.14, anim: 'medium', icon: 'sparkles', color: 'green' },
+    
+    // LEFT GUTTER (x: 0-30%, y: 5-95%) - 30% width gutter
+    { top: '8%', left: '3%', opacity: 0.16, anim: 'slow', icon: 'code', color: 'cyan' },
+    { top: '14%', left: '6%', opacity: 0.12, anim: 'fast', text: '</>', color: 'green' },
+    { top: '20%', left: '3%', opacity: 0.14, anim: 'medium', icon: 'layers', color: 'cyan' },
+    { top: '26%', left: '9%', opacity: 0.12, anim: 'slow', icon: 'sparkles', color: 'green' },
+    { top: '32%', left: '3%', opacity: 0.16, anim: 'fast', text: '[]', color: 'cyan' },
+    { top: '38%', left: '12%', opacity: 0.12, anim: 'medium', icon: 'code', color: 'green' },
+    { top: '44%', left: '6%', opacity: 0.14, anim: 'slow', text: '&&', color: 'cyan' },
+    { top: '50%', left: '9%', opacity: 0.12, anim: 'fast', icon: 'layers', color: 'green' },
+    { top: '56%', left: '3%', opacity: 0.16, anim: 'medium', icon: 'sparkles', color: 'cyan' },
+    { top: '62%', left: '12%', opacity: 0.12, anim: 'slow', text: '=>', color: 'green' },
+    { top: '68%', left: '6%', opacity: 0.14, anim: 'fast', icon: 'code', color: 'cyan' },
+    { top: '74%', left: '9%', opacity: 0.12, anim: 'medium', text: ';;', color: 'green' },
+    { top: '80%', left: '3%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '86%', left: '12%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'green' },
+    { top: '92%', left: '6%', opacity: 0.14, anim: 'medium', text: '!!', color: 'cyan' },
+    
+    // RIGHT GUTTER (x: 70-100%, y: 5-95%) - 30% width gutter
+    { top: '8%', left: '94%', opacity: 0.16, anim: 'slow', icon: 'code', color: 'green' },
+    { top: '14%', left: '91%', opacity: 0.12, anim: 'fast', text: '</>', color: 'cyan' },
+    { top: '20%', left: '94%', opacity: 0.14, anim: 'medium', icon: 'layers', color: 'green' },
+    { top: '26%', left: '88%', opacity: 0.12, anim: 'slow', icon: 'sparkles', color: 'cyan' },
+    { top: '32%', left: '94%', opacity: 0.16, anim: 'fast', text: '[]', color: 'green' },
+    { top: '38%', left: '85%', opacity: 0.12, anim: 'medium', icon: 'code', color: 'cyan' },
+    { top: '44%', left: '91%', opacity: 0.14, anim: 'slow', text: '||', color: 'green' },
+    { top: '50%', left: '88%', opacity: 0.12, anim: 'fast', icon: 'layers', color: 'cyan' },
+    { top: '56%', left: '94%', opacity: 0.16, anim: 'medium', icon: 'sparkles', color: 'green' },
+    { top: '62%', left: '85%', opacity: 0.12, anim: 'slow', text: '=>', color: 'cyan' },
+    { top: '68%', left: '91%', opacity: 0.14, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '74%', left: '88%', opacity: 0.12, anim: 'medium', text: 'fn', color: 'cyan' },
+    { top: '80%', left: '94%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '86%', left: '85%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'cyan' },
+    { top: '92%', left: '91%', opacity: 0.14, anim: 'medium', text: '//', color: 'green' },
+    
+    // BOTTOM EDGE (y: 96-100%) - across the bottom
+    { top: '97%', left: '2%', opacity: 0.16, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '98%', left: '8%', opacity: 0.14, anim: 'medium', text: '{ }', color: 'green' },
+    { top: '96%', left: '15%', opacity: 0.18, anim: 'fast', icon: 'code', color: 'cyan' },
+    { top: '99%', left: '22%', opacity: 0.12, anim: 'slow', icon: 'sparkles', color: 'green' },
+    { top: '97%', left: '30%', opacity: 0.16, anim: 'medium', text: '[]', color: 'cyan' },
+    { top: '96%', left: '38%', opacity: 0.14, anim: 'fast', icon: 'layers', color: 'green' },
+    { top: '98%', left: '45%', opacity: 0.18, anim: 'slow', icon: 'code', color: 'cyan' },
+    { top: '97%', left: '52%', opacity: 0.12, anim: 'medium', text: '=>', color: 'green' },
+    { top: '99%', left: '60%', opacity: 0.16, anim: 'fast', icon: 'sparkles', color: 'cyan' },
+    { top: '96%', left: '68%', opacity: 0.14, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '98%', left: '75%', opacity: 0.18, anim: 'medium', text: 'fn', color: 'cyan' },
+    { top: '97%', left: '82%', opacity: 0.12, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '96%', left: '90%', opacity: 0.16, anim: 'slow', icon: 'sparkles', color: 'cyan' },
+    { top: '99%', left: '96%', opacity: 0.14, anim: 'medium', text: '</>', color: 'green' },
+    
+    // Dense: LEFT GUTTER row 2 (fills the 30% gutter better)
+    { top: '11%', left: '4%', opacity: 0.10, anim: 'slow', text: '()', color: 'cyan' },
+    { top: '17%', left: '7%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '23%', left: '4%', opacity: 0.10, anim: 'medium', text: '==', color: 'cyan' },
+    { top: '29%', left: '10%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '35%', left: '4%', opacity: 0.10, anim: 'fast', text: '&&', color: 'cyan' },
+    { top: '41%', left: '7%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'green' },
+    { top: '47%', left: '4%', opacity: 0.10, anim: 'slow', text: '!!', color: 'cyan' },
+    { top: '53%', left: '10%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '59%', left: '4%', opacity: 0.10, anim: 'medium', text: ';;', color: 'cyan' },
+    { top: '65%', left: '7%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '71%', left: '4%', opacity: 0.10, anim: 'fast', text: '||', color: 'cyan' },
+    { top: '77%', left: '10%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'green' },
+    { top: '83%', left: '4%', opacity: 0.10, anim: 'slow', text: '=>', color: 'cyan' },
+    { top: '89%', left: '7%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
+    
+    // Dense: RIGHT GUTTER row 2
+    { top: '11%', left: '93%', opacity: 0.10, anim: 'slow', text: '()', color: 'green' },
+    { top: '17%', left: '90%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
+    { top: '23%', left: '93%', opacity: 0.10, anim: 'medium', text: '==', color: 'green' },
+    { top: '29%', left: '87%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '35%', left: '93%', opacity: 0.10, anim: 'fast', text: '&&', color: 'green' },
+    { top: '41%', left: '90%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'cyan' },
+    { top: '47%', left: '93%', opacity: 0.10, anim: 'slow', text: '!!', color: 'green' },
+    { top: '53%', left: '87%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
+    { top: '59%', left: '93%', opacity: 0.10, anim: 'medium', text: ';;', color: 'green' },
+    { top: '65%', left: '90%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '71%', left: '93%', opacity: 0.10, anim: 'fast', text: '||', color: 'green' },
+    { top: '77%', left: '87%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'cyan' },
+    { top: '83%', left: '93%', opacity: 0.10, anim: 'slow', text: '=>', color: 'green' },
+    { top: '89%', left: '90%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
+    
+    // Top edge extra
+    { top: '3%', left: '5%', opacity: 0.10, anim: 'fast', text: 'fn', color: 'cyan' },
+    { top: '0%', left: '12%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '4%', left: '18%', opacity: 0.10, anim: 'medium', text: '&&', color: 'cyan' },
+    { top: '1%', left: '25%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '3%', left: '33%', opacity: 0.10, anim: 'slow', text: '||', color: 'cyan' },
+    { top: '0%', left: '42%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'green' },
+    { top: '4%', left: '48%', opacity: 0.10, anim: 'fast', text: '!!', color: 'cyan' },
+    { top: '1%', left: '58%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '3%', left: '65%', opacity: 0.10, anim: 'medium', text: ';;', color: 'cyan' },
+    { top: '0%', left: '72%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'green' },
+    { top: '4%', left: '78%', opacity: 0.10, anim: 'slow', text: 'fn', color: 'cyan' },
+    { top: '1%', left: '88%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'green' },
+    
+    // Bottom edge extra
+    { top: '99%', left: '5%', opacity: 0.10, anim: 'fast', text: 'fn', color: 'green' },
+    { top: '96%', left: '12%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '99%', left: '18%', opacity: 0.10, anim: 'medium', text: '&&', color: 'green' },
+    { top: '97%', left: '25%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
+    { top: '99%', left: '33%', opacity: 0.10, anim: 'slow', text: '||', color: 'green' },
+    { top: '96%', left: '42%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'cyan' },
+    { top: '99%', left: '48%', opacity: 0.10, anim: 'fast', text: '!!', color: 'green' },
+    { top: '97%', left: '58%', opacity: 0.10, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '99%', left: '65%', opacity: 0.10, anim: 'medium', text: ';;', color: 'green' },
+    { top: '96%', left: '72%', opacity: 0.10, anim: 'fast', icon: 'code', color: 'cyan' },
+    { top: '99%', left: '78%', opacity: 0.10, anim: 'slow', text: 'fn', color: 'green' },
+    { top: '97%', left: '88%', opacity: 0.10, anim: 'medium', icon: 'sparkles', color: 'cyan' },
+    
+    // Corner clusters (more prominent now)
+    { top: '2%', left: '1%', opacity: 0.20, anim: 'slow', icon: 'code', color: 'cyan' },
+    { top: '4%', left: '2%', opacity: 0.18, anim: 'fast', text: '</>', color: 'green' },
+    { top: '0%', left: '4%', opacity: 0.16, anim: 'medium', icon: 'layers', color: 'cyan' },
+    { top: '98%', left: '1%', opacity: 0.20, anim: 'slow', icon: 'code', color: 'green' },
+    { top: '99%', left: '2%', opacity: 0.18, anim: 'fast', text: '</>', color: 'cyan' },
+    { top: '96%', left: '4%', opacity: 0.16, anim: 'medium', icon: 'layers', color: 'green' },
+    { top: '2%', left: '96%', opacity: 0.20, anim: 'slow', icon: 'code', color: 'cyan' },
+    { top: '4%', left: '95%', opacity: 0.18, anim: 'fast', text: '</>', color: 'green' },
+    { top: '0%', left: '93%', opacity: 0.16, anim: 'medium', icon: 'layers', color: 'cyan' },
+    { top: '98%', left: '96%', opacity: 0.20, anim: 'slow', icon: 'code', color: 'green' },
+    { top: '99%', left: '95%', opacity: 0.18, anim: 'fast', text: '</>', color: 'cyan' },
+    { top: '96%', left: '93%', opacity: 0.16, anim: 'medium', icon: 'layers', color: 'green' },
+    
+    // Extra elements for denser 30% gutters
+    { top: '15%', left: '15%', opacity: 0.12, anim: 'slow', icon: 'code', color: 'cyan' },
+    { top: '22%', left: '18%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'green' },
+    { top: '30%', left: '15%', opacity: 0.12, anim: 'medium', text: '{ }', color: 'cyan' },
+    { top: '40%', left: '20%', opacity: 0.12, anim: 'slow', icon: 'layers', color: 'green' },
+    { top: '55%', left: '15%', opacity: 0.12, anim: 'fast', text: '[]', color: 'cyan' },
+    { top: '70%', left: '18%', opacity: 0.12, anim: 'medium', icon: 'code', color: 'green' },
+    { top: '85%', left: '15%', opacity: 0.12, anim: 'slow', text: '=>', color: 'cyan' },
+    
+    { top: '15%', left: '82%', opacity: 0.12, anim: 'slow', icon: 'code', color: 'green' },
+    { top: '22%', left: '79%', opacity: 0.12, anim: 'fast', icon: 'sparkles', color: 'cyan' },
+    { top: '30%', left: '82%', opacity: 0.12, anim: 'medium', text: '{ }', color: 'green' },
+    { top: '40%', left: '77%', opacity: 0.12, anim: 'slow', icon: 'layers', color: 'cyan' },
+    { top: '55%', left: '82%', opacity: 0.12, anim: 'fast', text: '[]', color: 'green' },
+    { top: '70%', left: '79%', opacity: 0.12, anim: 'medium', icon: 'code', color: 'cyan' },
+    { top: '85%', left: '82%', opacity: 0.12, anim: 'slow', text: '=>', color: 'green' },
+  ];
 
-// Animated title component
-function AnimatedTitle() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const animClass: Record<string, string> = {
+    slow: 'animate-float-slow',
+    medium: 'animate-float-medium',
+    fast: 'animate-float-fast',
+  };
+
+  const getIcon = (type: string, color: string) => {
+    const c = color === 'cyan' ? 'var(--cyan)' : 'var(--green)';
+    switch (type) {
+      case 'code': return <Code2 className="w-5 h-5" style={{ color: c }} />;
+      case 'layers': return <Layers className="w-5 h-5" style={{ color: c }} />;
+      case 'sparkles': return <Sparkles className="w-4 h-4" style={{ color: c }} />;
+      default: return null;
+    }
+  };
 
   return (
-    <div className="mb-5 sm:mb-6 relative">
-      <h1
-        className={`text-5xl sm:text-7xl lg:text-8xl font-bold leading-[0.95] tracking-tight transition-all duration-1000 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        style={{ color: 'var(--text)' }}
-      >
-        Pehchaan
-      </h1>
-      <p
-        className={`mt-3 text-3xl sm:text-5xl lg:text-6xl font-bold leading-[1.4] transition-all duration-1000 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-        style={{
-          color: 'var(--cyan)',
-          fontFamily: '"Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif',
-        }}
-      >
-        پہچان
-      </p>
-      {/* Glow underline */}
-      <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-cyan to-transparent transition-all duration-1000 delay-500 ${mounted ? 'w-full max-w-md' : 'w-0'}`} />
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {elements.map((el, i) => (
+        <div
+          key={i}
+          className={`absolute ${animClass[el.anim] || ''}`}
+          style={{
+            top: el.top,
+            left: el.left,
+            opacity: el.opacity,
+            zIndex: 0,
+          }}
+        >
+          {el.text ? (
+            <span className="text-xs font-mono font-bold" style={{ color: el.color === 'cyan' ? 'var(--cyan)' : 'var(--green)' }}>
+              {el.text}
+            </span>
+          ) : (
+            getIcon(el.icon || '', el.color)
+          )}
+        </div>
+      ))}
     </div>
   );
-}
+};
 
 export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProps) {
   const [hovered, setHovered] = useState<'training' | 'arena' | null>(null);
@@ -79,16 +224,16 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
   return (
     <div className="min-h-screen flex flex-col relative" style={{ background: 'var(--bg)' }}>
       {/* Background pattern */}
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none z-0" style={{
         backgroundImage: `radial-gradient(circle, var(--text) 1px, transparent 1px)`,
         backgroundSize: '24px 24px'
       }} />
       
-      {/* Floating decorative elements */}
+      {/* Floating decorative elements - STRICTLY in gutters only */}
       <FloatingElements />
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <div className="pt-20 sm:pt-24 pb-8 sm:pb-10 px-4 sm:px-6">
+      <div className="pt-20 sm:pt-24 pb-8 sm:pb-10 px-4 sm:px-6 relative z-10">
         <div className="max-w-5xl mx-auto text-center">
           {/* Bilingual title */}
           <div className="mb-5 sm:mb-6">
@@ -152,15 +297,15 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
 
           {/* Stats row — NeetCode-style */}
           <div className="grid grid-cols-3 gap-3 sm:gap-5 max-w-2xl mx-auto mb-1">
-            <StatPill icon={<Zap className="w-4 h-4" />} value="6" label="Sandbox modules" color="var(--green)" />
-            <StatPill icon={<Target className="w-4 h-4" />} value="5" label="Arena bounties" color="var(--cyan)" />
+            <StatPill icon={<Zap className="w-4 h-4" />} value="8" label="Sandbox modules" color="var(--green)" />
+            <StatPill icon={<Target className="w-4 h-4" />} value="7" label="Arena bounties" color="var(--cyan)" />
             <StatPill icon={<CheckCircle2 className="w-4 h-4" />} value="AI" label="Adjudicated" color="#d97706" />
           </div>
         </div>
       </div>
 
       {/* ── Two Paths ─────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row flex-1 min-h-0">
+      <div className="flex flex-col sm:flex-row flex-1 min-h-0 relative z-10">
         <PathCard
           variant="training"
           imageSrc="/left.png"
@@ -205,7 +350,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
 
       {/* ── How it works strip ───────────────────────────────── */}
       <div
-        className="border-t border-b py-10 px-4 sm:px-6"
+        className="border-t border-b py-10 px-4 sm:px-6 relative z-10"
         style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)' }}
       >
         <div className="max-w-5xl mx-auto">
@@ -280,7 +425,7 @@ export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProp
       </div>
 
       {/* ── Footer ───────────────────────────────────────────── */}
-      <footer className="border-t" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+      <footer className="border-t relative z-10" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img src="/pehchaan_logo.png" alt="Pehchaan" className="h-8 w-8 object-contain" />
@@ -424,7 +569,7 @@ function PathCard({
           ? `0 0 40px ${accent}40, 0 20px 40px rgba(0,0,0,0.3)` 
           : '0 0 0 transparent',
         transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-        zIndex: isHovered ? 10 : 1,
+        zIndex: 10,
       }}
     >
       {/* Animated border glow */}
