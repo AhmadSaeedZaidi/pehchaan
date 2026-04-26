@@ -5,22 +5,36 @@ import { Trophy, Clock, Zap, AlertTriangle, ChevronRight, Terminal, X, Shield } 
 import dynamic from 'next/dynamic';
 import { bounties, generateTerminalLines } from '@/data/mockData';
 import { Bounty, TerminalLine } from '@/types';
+import { useTheme } from '@/context/ThemeContext';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
+function formatTime(s: number) {
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function DifficultyDots({ level }: { level: number }) {
+  return (
+    <div className="flex gap-1">
+      {Array(5).fill(0).map((_, i) => (
+        <div key={i} className="w-1.5 h-1.5 rounded-full" style={{ background: i < level ? '#ef4444' : 'var(--border-strong)' }} />
+      ))}
+    </div>
+  );
+}
+
+const lineColors: Record<TerminalLine['type'], string> = {
+  error: '#f87171', warning: '#fbbf24', info: 'var(--text-3)', success: '#4ade80',
+};
+
 export default function ArenaView() {
+  const { theme } = useTheme();
   const [selectedBounty, setSelectedBounty] = useState<Bounty | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [showFailure, setShowFailure] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>([]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const startChallenge = useCallback((bounty: Bounty) => {
     setSelectedBounty(bounty);
@@ -32,201 +46,181 @@ export default function ArenaView() {
 
   useEffect(() => {
     if (!selectedBounty || timeRemaining <= 0) return;
-    
-    const interval = setInterval(() => {
+    const id = setInterval(() => {
       setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          setShowFailure(true);
-          return 0;
-        }
+        if (prev <= 1) { setShowFailure(true); return 0; }
         return prev - 1;
       });
     }, 1000);
-
-    return () => clearInterval(interval);
+    return () => clearInterval(id);
   }, [selectedBounty, timeRemaining]);
 
   const handleDeployFix = () => {
     setIsRunning(true);
     setTimeout(() => {
       setIsRunning(false);
-      if (Math.random() > 0.3) {
-        setShowSuccess(true);
-      } else {
-        setShowFailure(true);
-      }
+      if (Math.random() > 0.3) setShowSuccess(true);
+      else setShowFailure(true);
     }, 2000);
   };
 
-  const handleClose = () => {
-    setSelectedBounty(null);
-    setShowFailure(false);
-    setShowSuccess(false);
-  };
-
-  const getDifficultyStars = (level: number) => {
-    return Array(5).fill(0).map((_, i) => (
-      <span key={i} className={i < level ? 'text-red-400' : 'text-gray-600'}>★</span>
-    ));
-  };
-
-  const getLineTypeColor = (type: TerminalLine['type']) => {
-    switch (type) {
-      case 'error': return 'text-red-400';
-      case 'warning': return 'text-yellow-400';
-      case 'info': return 'text-gray-400';
-      case 'success': return 'text-green-400';
-      default: return 'text-gray-400';
-    }
-  };
+  const handleClose = () => { setSelectedBounty(null); setShowFailure(false); setShowSuccess(false); };
+  const isUrgent = timeRemaining > 0 && timeRemaining < 60;
 
   return (
-    <div className="pt-24 pb-12 min-h-screen">
-      <div className="max-w-[1800px] mx-auto px-6">
-        <h1 className="text-2xl font-bold mb-2">Arena</h1>
-        <p className="text-gray-500 mb-8">Prove what you know. Earn your badges.</p>
+    <div className="pt-14 sm:pt-16 min-h-screen" style={{ background: 'var(--bg)' }}>
+      <div className="max-w-[1800px] mx-auto px-3 sm:px-6 py-5 sm:py-8">
+        <div className="mb-4 sm:mb-6 pl-12 sm:pl-16">
+          <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--text)' }}>The Arena</h1>
+          <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>Prove what you know. Earn your badges.</p>
+        </div>
 
         {selectedBounty ? (
-          /* Challenge Workspace */
-          <div className="h-[calc(100vh-200px)] flex flex-col bg-[#1a1a1a] rounded-xl border border-red-500/20 overflow-hidden">
-            {/* Top Bar */}
-            <div className="flex items-center justify-between p-4 border-b border-white/5">
-              <div className="flex items-center gap-4">
-                <button onClick={handleClose} className="p-2 hover:bg-white/5 rounded-lg">
-                  <X className="w-5 h-5 text-gray-400" />
+          <div
+            className="flex flex-col rounded-xl border overflow-hidden"
+            style={{ height: 'calc(100vh - 170px)', minHeight: '500px', background: 'var(--bg-secondary)', borderColor: 'rgba(239,68,68,0.2)' }}
+          >
+            {/* Top bar */}
+            <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 border-b flex-shrink-0" style={{ borderColor: 'var(--border)' }}>
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <button onClick={handleClose} className="p-1.5 rounded-lg transition-colors flex-shrink-0" style={{ color: 'var(--text-3)' }}>
+                  <X className="w-4 h-4" />
                 </button>
-                <div>
-                  <h2 className="font-bold text-lg">{selectedBounty.title}</h2>
-                  <p className="text-xs text-gray-500">{selectedBounty.repo}</p>
+                <div className="min-w-0">
+                  <h2 className="font-bold text-sm truncate" style={{ color: 'var(--text)' }}>{selectedBounty.title}</h2>
+                  <p className="text-xs font-mono truncate" style={{ color: 'var(--text-3)' }}>{selectedBounty.repo}</p>
                 </div>
               </div>
-              
-              {/* Timer */}
-              <div className={`flex items-center gap-3 px-6 py-3 rounded-lg ${
-                timeRemaining < 60 ? 'bg-red-500/20 border border-red-500/50 animate-pulse' : 'bg-[#121212]'
-              }`}>
-                <Clock className={`w-5 h-5 ${timeRemaining < 60 ? 'text-red-400' : 'text-gray-400'}`} />
-                <span className={`font-mono text-2xl font-bold ${timeRemaining < 60 ? 'text-red-400' : 'text-white'}`}>
+              <div
+                className="flex items-center gap-2 px-3 sm:px-5 py-2 rounded-lg border flex-shrink-0 ml-2"
+                style={
+                  isUrgent
+                    ? { background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)' }
+                    : { background: 'var(--bg)', borderColor: 'var(--border)' }
+                }
+              >
+                <Clock className="w-3.5 h-3.5" style={{ color: isUrgent ? '#ef4444' : 'var(--text-3)' }} />
+                <span
+                  className="font-mono text-lg sm:text-xl font-bold tabular-nums"
+                  style={{ color: isUrgent ? '#ef4444' : 'var(--text)' }}
+                >
                   {formatTime(timeRemaining)}
                 </span>
               </div>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 flex min-h-0">
-              {/* File Tree - Left */}
-              <div className="w-64 border-r border-white/5 bg-[#121212] p-4 overflow-y-auto">
-                <h3 className="text-xs text-gray-500 uppercase mb-4">Files</h3>
-                <div className="space-y-1 font-mono text-sm">
-                  <div className="px-2 py-1 text-yellow-400">src/</div>
-                  <div className="px-2 py-1 pl-6 text-gray-500">components/</div>
-                  <div className="px-2 py-1 pl-8 text-red-400 flex items-center gap-1">
+            {/* Main workspace */}
+            <div className="flex-1 flex flex-col sm:flex-row min-h-0">
+              {/* File tree — hidden on small mobile */}
+              <div className="hidden sm:block w-48 lg:w-56 border-r flex-shrink-0 overflow-y-auto p-3" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+                <p className="text-[10px] uppercase tracking-widest mb-3 font-mono" style={{ color: 'var(--text-3)' }}>Files</p>
+                <div className="space-y-0.5 font-mono text-xs">
+                  <div className="px-2 py-1" style={{ color: '#d97706' }}>src/</div>
+                  <div className="px-2 py-1 pl-6" style={{ color: 'var(--text-3)' }}>components/</div>
+                  <div className="px-2 py-1 pl-8 flex items-center gap-1.5" style={{ color: '#ef4444' }}>
                     <AlertTriangle className="w-3 h-3" /> App.tsx
                   </div>
-                  <div className="px-2 py-1 pl-8 text-gray-500">index.ts</div>
-                  <div className="px-2 py-1 text-gray-500">package.json</div>
+                  <div className="px-2 py-1 pl-8" style={{ color: 'var(--text-3)' }}>index.ts</div>
+                  <div className="px-2 py-1" style={{ color: 'var(--text-3)' }}>package.json</div>
                 </div>
               </div>
 
-              {/* Code Editor */}
-              <div className="flex-1 min-w-0">
+              {/* Editor */}
+              <div className="flex-1 min-w-0 min-h-0" style={{ minHeight: '200px' }}>
                 <MonacoEditor
                   height="100%"
                   language="typescript"
-                  theme="vs-dark"
-                  value={`// ${selectedBounty.title}\n// Fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
+                  theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+                  value={`// ${selectedBounty.title} — Find and fix the bugs!\n\nexport function processUserData(user: any) {\n  return user.name.toUpperCase();\n}\n\nexport async function fetchData(url: string) {\n  const response = await fetch(url);\n  return response.json();\n}\n\nexport class EventEmitter {\n  private events: Map<string, Function[]>;\n  \n  constructor() {\n    this.events = new Map();\n  }\n  \n  on(event: string, handler: Function) {\n    if (!this.events.has(event)) {\n      this.events.set(event, []);\n    }\n    this.events.get(event)!.push(handler);\n  }\n}`}
                   options={{
                     minimap: { enabled: false },
-                    fontSize: 14,
+                    fontSize: 13,
                     lineNumbers: 'on',
                     scrollBeyondLastLine: false,
                     automaticLayout: true,
+                    padding: { top: 12 },
+                    fontFamily: "'JetBrains Mono', monospace",
                   }}
                 />
               </div>
             </div>
 
             {/* Terminal */}
-            <div className="h-48 border-t border-white/5 bg-[#0d0d0d]">
-              <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5">
-                <Terminal className="w-4 h-4 text-gray-500" />
-                <span className="text-xs text-gray-500 uppercase">Errors</span>
+            <div className="h-32 sm:h-40 border-t flex flex-col flex-shrink-0" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
+              <div className="flex items-center gap-2 px-4 py-1.5 border-b flex-shrink-0" style={{ borderColor: 'var(--border)' }}>
+                <Terminal className="w-3.5 h-3.5" style={{ color: 'var(--text-3)' }} />
+                <span className="text-[10px] uppercase tracking-widest font-mono" style={{ color: 'var(--text-3)' }}>Errors</span>
               </div>
-              <div className="p-4 font-mono text-sm space-y-1 h-32 overflow-y-auto">
+              <div className="flex-1 p-3 sm:p-4 font-mono text-xs space-y-1 overflow-y-auto">
                 {terminalLines.map((line) => (
-                  <div key={line.id} className={getLineTypeColor(line.type)}>
-                    <span className="text-gray-600 mr-2">[{line.timestamp.split('T')[1].split('.')[0]}]</span>
+                  <div key={line.id} style={{ color: lineColors[line.type] }}>
+                    <span className="mr-2" style={{ color: 'var(--text-3)' }}>[{line.timestamp.split('T')[1].split('.')[0]}]</span>
                     {line.message}
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Deploy Button */}
-            <div className="p-4 border-t border-white/5 bg-[#121212]">
+            {/* Deploy */}
+            <div className="px-3 sm:px-5 py-2.5 sm:py-3 border-t flex-shrink-0" style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
               <button
                 onClick={handleDeployFix}
                 disabled={isRunning}
-                className={`w-full py-4 rounded-lg font-bold text-lg flex items-center justify-center gap-3 ${
-                  isRunning 
-                    ? 'bg-gray-700 text-gray-400' 
-                    : 'bg-red-500 hover:bg-red-400 text-white'
-                }`}
+                className="w-full py-2.5 sm:py-3 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+                style={
+                  isRunning
+                    ? { background: 'var(--bg-tertiary)', color: 'var(--text-3)' }
+                    : { background: '#ef4444', color: '#ffffff' }
+                }
               >
                 {isRunning ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                    Deploying...
-                  </>
+                  <><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />Deploying...</>
                 ) : (
-                  <>
-                    <Shield className="w-5 h-5" />
-                    DEPLOY FIX
-                  </>
+                  <><Shield className="w-4 h-4" />DEPLOY FIX</>
                 )}
               </button>
             </div>
           </div>
         ) : (
-          /* Bounty List */
-          <div className="bg-[#1a1a1a] rounded-xl border border-white/5 overflow-hidden">
-            <div className="p-6 border-b border-white/5">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-red-400" />
-                Active Challenges
-              </h2>
+          /* Bounty list */
+          <div className="rounded-xl border overflow-hidden" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b flex items-center gap-2" style={{ borderColor: 'var(--border)' }}>
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" style={{ color: '#ef4444' }} />
+              <h2 className="text-sm sm:text-base font-bold" style={{ color: 'var(--text)' }}>Active Challenges</h2>
+              <span className="ml-auto text-xs font-mono" style={{ color: 'var(--text-3)' }}>{bounties.length} open</span>
             </div>
-            
-            <div className="divide-y divide-white/5">
+
+            <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
               {bounties.map((bounty) => (
                 <button
                   key={bounty.id}
                   onClick={() => startChallenge(bounty)}
-                  className="w-full p-6 text-left hover:bg-white/5 transition-colors"
+                  className="w-full px-4 sm:px-6 py-4 sm:py-5 text-left transition-colors group"
+                  style={{ borderColor: 'var(--border)' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-tertiary)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg">{bounty.title}</h3>
-                        <span className="text-sm text-gray-500">{bounty.techStack}</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 sm:gap-3 mb-1.5">
+                        <h3 className="font-semibold text-sm sm:text-base" style={{ color: 'var(--text)' }}>{bounty.title}</h3>
+                        <span className="text-xs font-mono hidden sm:block" style={{ color: 'var(--text-3)' }}>{bounty.techStack}</span>
                       </div>
-                      <div className="flex items-center gap-6 text-sm">
-                        <span className="text-gray-400">{getDifficultyStars(bounty.difficulty)}</span>
-                        <span className="text-gray-500">{bounty.passRate}% pass</span>
-                        <span className="text-gray-500">{bounty.totalAttempts} attempts</span>
-                        <span className="text-gray-500">{formatTime(bounty.timeLimit)}</span>
+                      <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
+                        <DifficultyDots level={bounty.difficulty} />
+                        <span className="text-xs" style={{ color: 'var(--text-3)' }}>{bounty.passRate}% pass</span>
+                        <span className="text-xs hidden sm:block" style={{ color: 'var(--text-3)' }}>{bounty.totalAttempts.toLocaleString()} attempts</span>
+                        <span className="text-xs font-mono" style={{ color: 'var(--text-3)' }}>{formatTime(bounty.timeLimit)}</span>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3 sm:gap-5 flex-shrink-0">
                       <div className="text-right">
-                        <div className="flex items-center gap-1 text-red-400 font-bold">
-                          <Zap className="w-4 h-4" />
-                          {bounty.reward}
+                        <div className="flex items-center gap-1 font-bold text-sm" style={{ color: 'var(--cyan)' }}>
+                          <Zap className="w-3.5 h-3.5" />{bounty.reward}
                         </div>
-                        <div className="text-xs text-gray-500">Reward</div>
+                        <div className="text-[10px]" style={{ color: 'var(--text-3)' }}>reward</div>
                       </div>
-                      <ChevronRight className="w-6 h-6 text-gray-600" />
+                      <ChevronRight className="w-4 h-4" style={{ color: 'var(--text-3)' }} />
                     </div>
                   </div>
                 </button>
@@ -235,43 +229,35 @@ export default function ArenaView() {
           </div>
         )}
 
-        {/* Failure Overlay */}
+        {/* Overlays */}
         {showFailure && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-            <div className="bg-[#1a1a1a] rounded-2xl border border-red-500/50 p-12 text-center max-w-md mx-4">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
-                <X className="w-10 h-10 text-red-400" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="rounded-2xl border p-8 sm:p-10 text-center max-w-sm w-full shadow-2xl" style={{ background: 'var(--bg)', borderColor: 'rgba(239,68,68,0.3)' }}>
+              <div className="w-14 h-14 mx-auto mb-4 rounded-full border flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)' }}>
+                <X className="w-7 h-7" style={{ color: '#ef4444' }} />
               </div>
-              <h2 className="text-2xl font-bold text-red-400 mb-4">Failed</h2>
-              <p className="text-gray-400 mb-8">
-                Not quite. Try again when ready.
-              </p>
-              <button
-                onClick={() => setShowFailure(false)}
-                className="w-full py-3 rounded-lg bg-white/10 hover:bg-white/20"
-              >
+              <h2 className="text-lg sm:text-xl font-bold mb-2" style={{ color: 'var(--text)' }}>Not this time</h2>
+              <p className="text-sm mb-6" style={{ color: 'var(--text-3)' }}>The fix didn&apos;t pass. Review the errors and try again.</p>
+              <button onClick={() => setShowFailure(false)} className="w-full py-2.5 rounded-xl text-sm font-medium transition-colors" style={{ background: 'var(--bg-secondary)', color: 'var(--text)' }}>
                 Try Again
               </button>
             </div>
           </div>
         )}
 
-        {/* Success Overlay */}
         {showSuccess && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-            <div className="bg-[#1a1a1a] rounded-2xl border border-green-500/50 p-12 text-center max-w-md mx-4">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-500/20 flex items-center justify-center">
-                <Trophy className="w-10 h-10 text-green-400" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="rounded-2xl border p-8 sm:p-10 text-center max-w-sm w-full shadow-2xl" style={{ background: 'var(--bg)', borderColor: 'rgba(22,163,74,0.3)' }}>
+              <div className="w-14 h-14 mx-auto mb-4 rounded-full border flex items-center justify-center" style={{ background: 'rgba(22,163,74,0.08)', borderColor: 'rgba(22,163,74,0.2)' }}>
+                <Trophy className="w-7 h-7" style={{ color: '#16a34a' }} />
               </div>
-              <h2 className="text-2xl font-bold text-green-400 mb-4">Badge Earned</h2>
-              <p className="text-gray-300 mb-2">{selectedBounty?.title}</p>
-              <div className="bg-red-500 rounded-lg p-4 mb-8">
-                <p className="text-white font-bold">+{selectedBounty?.reward} pts</p>
+              <h2 className="text-lg sm:text-xl font-bold mb-1" style={{ color: 'var(--text)' }}>Badge Earned</h2>
+              <p className="text-sm mb-4" style={{ color: 'var(--text-3)' }}>{selectedBounty?.title}</p>
+              <div className="rounded-xl p-4 mb-6" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+                <p className="text-2xl font-bold" style={{ color: 'var(--text)' }}>+{selectedBounty?.reward}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>Pehchaan Trust Score</p>
               </div>
-              <button
-                onClick={handleClose}
-                className="w-full py-3 rounded-lg bg-green-500 text-black font-medium"
-              >
+              <button onClick={handleClose} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: '#16a34a' }}>
                 Continue
               </button>
             </div>

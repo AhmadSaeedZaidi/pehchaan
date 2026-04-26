@@ -1,36 +1,152 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pehchaan — پہچان
 
-## Getting Started
+> **The proving ground for unrecognised developers.**
+> An open infrastructure layer that maps informal tech talent to formal economic opportunities.
 
-First, run the development server:
+Pehchaan gives self-taught developers a verifiable, objective ledger of their capabilities — through adversarial code debugging, not passive portfolios.
+
+---
+
+## Platform
+
+| Mode | Audience | Purpose |
+|---|---|---|
+| **The Sandbox** | Novice developers | Zero-penalty training, hints, progressive difficulty |
+| **The Arena** | Experienced developers | Timed challenges, immutable badges, Pehchaan Trust Score |
+
+---
+
+## Tech Stack
+
+- **Frontend** — Next.js 16, React 19, Tailwind CSS v3
+- **Code Editor** — Monaco Editor (VS Code's engine)
+- **Database** — Neon (serverless PostgreSQL)
+- **AI Evaluation** — Google Gemini API (`gemma-4-31b-it`)
+- **Profile Enrichment** — Tavily API (optional)
+
+---
+
+## Local Development
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/your-username/pehchaan.git
+cd pehchaan
+npm install
+```
+
+### 2. Environment variables
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local`:
+
+```env
+# Neon PostgreSQL — https://neon.tech (free tier works)
+DATABASE_URL=postgresql://...
+
+# Google AI Studio — https://aistudio.google.com/apikey
+GEMINI_API_KEY=AIza...
+
+# Tavily (optional) — https://tavily.com
+TAVILY_API_KEY=tvly-...
+```
+
+### 3. Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy to Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Step 1 — Push to GitHub
 
-## Learn More
+```bash
+git add .
+git commit -m "initial commit"
+git push origin main
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Step 2 — Import on Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **"Import Git Repository"** → select your `pehchaan` repo
+3. Vercel auto-detects Next.js — leave defaults as-is
+4. Click **"Deploy"** (first deploy will fail without env vars — that's ok)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Step 3 — Add Environment Variables
 
-## Deploy on Vercel
+In the Vercel dashboard → **Settings → Environment Variables**, add:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Name | Value | Environments |
+|---|---|---|
+| `DATABASE_URL` | Your Neon connection string | Production, Preview, Development |
+| `GEMINI_API_KEY` | Your Google AI Studio key | Production, Preview, Development |
+| `TAVILY_API_KEY` | Your Tavily key *(optional)* | Production, Preview, Development |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> **Tip:** In Neon, create a separate branch for Preview deployments and use that connection string for the Preview environment.
+
+### Step 4 — Redeploy
+
+Go to **Deployments → your latest deploy → Redeploy** (or push a new commit). The app will be live at `https://your-project.vercel.app`.
+
+### Step 5 — Custom Domain *(optional)*
+
+In Vercel → **Settings → Domains** → add `pehchaan.pk` or your custom domain. Update DNS per Vercel's instructions.
+
+---
+
+## Database Schema
+
+The schema auto-creates on first API request (no manual migration needed):
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+  id              TEXT PRIMARY KEY,
+  github_username TEXT UNIQUE NOT NULL,
+  pts_score       INTEGER NOT NULL DEFAULT 150,
+  badges          TEXT[]  NOT NULL DEFAULT '{}',
+  status          TEXT    NOT NULL DEFAULT 'Unverified',
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+---
+
+## API Reference
+
+### `POST /api/onboard`
+Creates a new user profile.
+```json
+{ "githubUsername": "AhmadSaeedZaidi" }
+```
+
+### `POST /api/verify`
+Grades submitted code using Gemini and updates the user's Trust Score.
+```json
+{
+  "userId": "user_...",
+  "challengeId": "react-state-1",
+  "submittedCode": "..."
+}
+```
+
+### `GET /api/verify?userId=...`
+Returns a user's current score, status, and completed challenges.
+
+---
+
+## SDG Alignment
+
+| Goal | How |
+|---|---|
+| **SDG 4** — Quality Education | Validates self-taught skills without institutional gatekeeping |
+| **SDG 8** — Decent Work | Formalises informal tech talent for the gig economy |
+| **SDG 10** — Reduced Inequalities | Removes geographic and credential-based barriers |

@@ -245,6 +245,95 @@ async def update_user(user_id: int, update: UserUpdate):
     await asyncio.sleep(0.1)
     user_cache[user_id] = {**current, **update.dict()}
     return user_cache[user_id]`,
+  'node-async-1': `const express = require('express');
+const app = express();
+
+function readFileCallback(filename, callback) {
+  const fs = require('fs');
+  fs.readFile(filename, 'utf8', function(err, data) {
+    if (err) callback(err);
+    callback(null, data);
+  });
+}
+
+app.get('/file', (req, res) => {
+  readFileCallback('data.txt', (err, data) => {
+    if (err) return res.status(500).send('Error');
+    readFileCallback('meta.txt', (err2, meta) => {
+      if (err2) return res.status(500).send('Error');
+      res.json({ data, meta });
+    });
+  });
+});
+
+app.listen(3000);`,
+  'sql-injection-1': `const mysql = require('mysql2');
+const db = mysql.createConnection({ host: 'localhost', database: 'app' });
+
+function getUser(req, res) {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  const query = "SELECT * FROM users WHERE username = '" + username +
+                "' AND password = '" + password + "'";
+
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length > 0) {
+      res.json({ success: true, user: results[0] });
+    } else {
+      res.status(401).json({ success: false });
+    }
+  });
+}`,
+  'react-hooks-1': `import React, { useState, useEffect } from 'react';
+
+function SearchComponent({ query }) {
+  const [results, setResults] = useState([]);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    fetch(\`/api/search?q=\${query}\`)
+      .then(r => r.json())
+      .then(data => {
+        setResults(data);
+        setCount(count + 1);
+      });
+  }, [query, count]);
+
+  return (
+    <div>
+      <p>Searches: {count}</p>
+      {results.map(r => <div key={r.id}>{r.title}</div>)}
+    </div>
+  );
+}`,
+  'express-middleware-1': `const express = require('express');
+const app = express();
+
+const authMiddleware = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token || token !== 'secret') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+};
+
+app.get('/public', (req, res) => {
+  res.json({ message: 'Public endpoint' });
+});
+
+app.use(authMiddleware);
+
+app.get('/admin', (req, res) => {
+  res.json({ message: 'Admin only' });
+});
+
+app.get('/dashboard', (req, res) => {
+  res.json({ data: 'Protected data' });
+});
+
+app.listen(3000);`,
 };
 
 export const hints: Record<string, string> = {

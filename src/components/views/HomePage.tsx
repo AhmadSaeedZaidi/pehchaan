@@ -4,150 +4,163 @@ import React, { useState } from 'react';
 import { GraduationCap, Sword, ChevronRight } from 'lucide-react';
 
 interface HomePageProps {
-  isLoggedIn: boolean;
   onEnterTraining: () => void;
   onEnterArena: () => void;
 }
 
-export default function HomePage({ isLoggedIn, onEnterTraining, onEnterArena }: HomePageProps) {
+const trainingSteps = ['Pick a skill', 'Find the bug', 'Fix it', 'Level up'];
+const arenaSteps = ['Pick a challenge', 'Race the clock', 'Earn your badge'];
+
+export default function HomePage({ onEnterTraining, onEnterArena }: HomePageProps) {
   const [hoveredPath, setHoveredPath] = useState<'training' | 'trial' | null>(null);
 
-  const trainingSteps = [
-    'Pick a skill',
-    'Find the bug',
-    'Fix it',
-    'Level up',
-  ];
-
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
       {/* Hero */}
-      <div className="pt-32 pb-12 text-center px-6">
-        <h1 className="text-5xl font-bold mb-4 text-white">
-          The Unrecognized <span className="text-[#00d4ff]">Get Verified</span>
+      <div className="pt-24 sm:pt-28 pb-8 text-center px-4 sm:px-6">
+        <p
+          className="text-[10px] sm:text-xs font-mono tracking-widest uppercase mb-3 sm:mb-4 opacity-60"
+          style={{ color: 'var(--cyan)' }}
+        >
+          Pehchaan — پہچان
+        </p>
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 leading-tight" style={{ color: 'var(--text)' }}>
+          The Unrecognised<br />
+          <span style={{ color: 'var(--cyan)' }}>Get Verified</span>
         </h1>
-        <p className="text-gray-400 text-lg max-w-xl mx-auto">
-          Stop watching others get credit for your work. Prove what you can build.
+        <p className="text-sm sm:text-base max-w-sm sm:max-w-md mx-auto leading-relaxed" style={{ color: 'var(--text-3)' }}>
+          Stop watching others get credit for your work.<br className="hidden sm:block" />
+          Prove what you can actually build.
         </p>
       </div>
 
-      {/* Two Paths - Full Width, Edge to Edge */}
-      <div className="flex">
-        {/* Training Path - Left */}
+      {/* Two Paths — stacked on mobile, side-by-side on desktop */}
+      <div className="flex flex-col sm:flex-row flex-1 min-h-0">
+        {/* Training — Left */}
         <button
           onMouseEnter={() => setHoveredPath('training')}
           onMouseLeave={() => setHoveredPath(null)}
           onClick={onEnterTraining}
-          className={`relative flex-1 h-[calc(100vh-220px)] overflow-hidden transition-all duration-500 ${
-            hoveredPath === 'training' ? 'scale-[1.02]' : ''
-          }`}
+          className="relative overflow-hidden transition-all duration-500 group sm:flex-1"
+          style={{
+            minHeight: '320px',
+            opacity: hoveredPath === 'trial' ? 0.7 : 1,
+          }}
         >
-          {/* Background Image */}
+          {/* Background image — brighter overlay */}
           <div className="absolute inset-0">
-            <img 
-              src="/left.png" 
-              alt="Training" 
-              className="w-full h-full object-cover"
+            <img src="/left.png" alt="Training" className="w-full h-full object-cover" />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.05) 100%)' }}
             />
-            <div className="absolute inset-0 bg-black/50" />
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full flex flex-col justify-between p-12">
+          <div className="relative z-10 h-full flex flex-col justify-between p-7 sm:p-10 lg:p-14" style={{ minHeight: '320px' }}>
             <div>
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-16 h-16 bg-[#00ff88]/20 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-8 h-8 text-[#00ff88]" />
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
+                <div
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border backdrop-blur-sm flex-shrink-0"
+                  style={{ background: 'rgba(0,196,114,0.15)', borderColor: 'rgba(0,196,114,0.25)' }}
+                >
+                  <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: '#00ff88' }} />
                 </div>
-                <div>
-                  <h2 className="text-4xl font-bold text-white">Train</h2>
-                  <p className="text-gray-300">Learn by doing</p>
+                <div className="text-left">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white">The Sandbox</h2>
+                  <p className="text-xs sm:text-sm" style={{ color: 'rgba(0,255,136,0.75)' }}>Zero pressure training</p>
                 </div>
               </div>
 
-              <div className="space-y-4 mb-12">
+              <div className="space-y-2.5 sm:space-y-3 mb-7 sm:mb-10">
                 {trainingSteps.map((step, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full bg-[#00ff88]/20 flex items-center justify-center text-[#00ff88] font-bold">
+                  <div key={i} className="flex items-center gap-3">
+                    <span
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0"
+                      style={{ background: 'rgba(0,255,136,0.15)', border: '1px solid rgba(0,255,136,0.25)', color: '#00ff88' }}
+                    >
                       {i + 1}
-                    </div>
-                    <span className="text-xl text-white">{step}</span>
+                    </span>
+                    <span className="text-sm sm:text-base font-medium text-white/90">{step}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[#00ff88] text-xl font-medium">
-              Start Training <ChevronRight className="w-6 h-6" />
+            <div className="flex items-center gap-2 text-sm font-semibold tracking-wide" style={{ color: '#00ff88' }}>
+              Start Training
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </button>
 
         {/* Divider */}
-        <div className="w-1 bg-[#1a1a1a]" />
+        <div className="h-px sm:h-auto sm:w-px" style={{ background: 'rgba(255,255,255,0.15)' }} />
 
-        {/* Trial Path - Right */}
+        {/* Arena — Right */}
         <button
           onMouseEnter={() => setHoveredPath('trial')}
           onMouseLeave={() => setHoveredPath(null)}
           onClick={onEnterArena}
-          className={`relative flex-1 h-[calc(100vh-220px)] overflow-hidden transition-all duration-500 ${
-            hoveredPath === 'trial' ? 'scale-[1.02]' : ''
-          }`}
+          className="relative overflow-hidden transition-all duration-500 group sm:flex-1"
+          style={{
+            minHeight: '320px',
+            opacity: hoveredPath === 'training' ? 0.7 : 1,
+          }}
         >
-          {/* Background Image */}
+          {/* Background image — brighter overlay */}
           <div className="absolute inset-0">
-            <img 
-              src="/right.png" 
-              alt="Arena" 
-              className="w-full h-full object-cover"
+            <img src="/right.png" alt="Arena" className="w-full h-full object-cover" />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.05) 100%)' }}
             />
-            <div className="absolute inset-0 bg-black/50" />
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 h-full flex flex-col justify-between p-12">
+          <div className="relative z-10 h-full flex flex-col justify-between p-7 sm:p-10 lg:p-14" style={{ minHeight: '320px' }}>
             <div>
-              <div className="flex items-center gap-4 mb-8">
-                <div className="w-16 h-16 bg-[#00d4ff]/20 rounded-lg flex items-center justify-center">
-                  <Sword className="w-8 h-8 text-[#00d4ff]" />
+              <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
+                <div
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center border backdrop-blur-sm flex-shrink-0"
+                  style={{ background: 'rgba(0,180,216,0.15)', borderColor: 'rgba(0,180,216,0.25)' }}
+                >
+                  <Sword className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: '#00d4ff' }} />
                 </div>
-                <div>
-                  <h2 className="text-4xl font-bold text-white">Prove It</h2>
-                  <p className="text-gray-300">Under pressure</p>
+                <div className="text-left">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-white">The Arena</h2>
+                  <p className="text-xs sm:text-sm" style={{ color: 'rgba(0,212,255,0.75)' }}>High-stakes verification</p>
                 </div>
               </div>
 
-              <div className="space-y-4 mb-12">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#00d4ff]/20 flex items-center justify-center text-[#00d4ff] font-bold">1</div>
-                  <span className="text-xl text-white">Pick a challenge</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#00d4ff]/20 flex items-center justify-center text-[#00d4ff] font-bold">2</div>
-                  <span className="text-xl text-white">Race the clock</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#00d4ff]/20 flex items-center justify-center text-[#00d4ff] font-bold">3</div>
-                  <span className="text-xl text-white">Earn your badge</span>
-                </div>
+              <div className="space-y-2.5 sm:space-y-3 mb-7 sm:mb-10">
+                {arenaSteps.map((step, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold flex-shrink-0"
+                      style={{ background: 'rgba(0,180,216,0.15)', border: '1px solid rgba(0,180,216,0.25)', color: '#00d4ff' }}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="text-sm sm:text-base font-medium text-white/90">{step}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[#00d4ff] text-xl font-medium">
-              Enter Arena <ChevronRight className="w-6 h-6" />
+            <div className="flex items-center gap-2 text-sm font-semibold tracking-wide" style={{ color: '#00d4ff' }}>
+              Enter Arena
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </button>
       </div>
 
       {/* Footer */}
-      <div className="py-8 px-6">
-        <div className="max-w-6xl mx-auto flex justify-between items-center text-sm text-gray-500">
-          <div>Pehchaan</div>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-white transition-colors">Docs</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
+      <div className="border-t py-4 px-4 sm:px-6" style={{ borderColor: 'var(--border)' }}>
+        <div className="max-w-6xl mx-auto flex justify-between items-center text-xs" style={{ color: 'var(--text-3)' }}>
+          <span>© 2026 Pehchaan</span>
+          <div className="flex gap-4 sm:gap-6">
+            <a href="#" className="hover:underline">Docs</a>
+            <a href="#" className="hover:underline">Contact</a>
           </div>
         </div>
       </div>
