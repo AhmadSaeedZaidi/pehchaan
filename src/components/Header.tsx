@@ -23,16 +23,13 @@ export default function Header({ isLoggedIn, onLoginClick, onProfileClick }: Hea
     >
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 h-[60px] flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 flex-shrink-0">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'var(--cyan)' }}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M3 8L6.5 11.5L13 5" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <span className="text-sm font-semibold tracking-tight text-base">Pehchaan</span>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <img
+            src="/pehchaan_logo.png"
+            alt="Pehchaan logo"
+            className="h-8 w-8 object-contain"
+          />
+          <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text)' }}>Pehchaan</span>
         </div>
 
         {/* Desktop nav */}
